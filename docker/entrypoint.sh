@@ -8,8 +8,9 @@ chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 # Jalankan migrasi jika file .env sudah ada
 if [ -f /var/www/.env ]; then
   echo "Running migrations..."
-  docker-php-ext-install pdo pdo_mysql
-  php artisan migrate --force
+  # docker-php-ext-install pdo pdo_mysql
+  # php artisan migrate --force
+  php artisan optimize:clear
 else
   echo ".env not found, skipping migration."
 fi
