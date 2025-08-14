@@ -1,29 +1,8 @@
-<!DOCTYPE html>
-<html>
+@extends('layouts.app')
 
-<head>
-    <title>Folder List</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+@section('title', 'Folder List')
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f4f4f4;
-            text-align: left;
-        }
-    </style>
-    @vite('resources/css/app.css')
-</head>
-
-<body>
+@section('content')
 
     <h1 class="text-3xl font-bold underline">Folder List</h1>
 
@@ -54,6 +33,4 @@
         </table>
     @endif
 
-</body>
-
-</html>
+@endsection

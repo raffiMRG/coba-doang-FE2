@@ -37,6 +37,41 @@ services:
     entrypoint: ["composer"]
     # user: "${UID}:${GID}"
 
+  artisan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel_artisan
+    entrypoint: ["php", "/var/www/artisan"]
+    # entrypoint: ["artisan"]
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+
+# node:
+#     image: node:22
+#     container_name: laravel_node
+#     working_dir: /var/www
+#     volumes:
+#       - ./src:/var/www
+#     ports:
+#       - "5173:5173"
+#     networks:
+#       - laravel
+#     command: sh -c "npm install && npm run dev -- --host"
+
+  node:
+    image: node:22
+    container_name: laravel_node
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    ports:
+      - "5173:5173" # penting supaya bisa diakses dari device lain
+    networks:
+      - laravel
+    command: sh -c "npm install && npm run dev -- --host"
+
 networks:
   laravel:
     driver: bridge
