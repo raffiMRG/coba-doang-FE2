@@ -9,7 +9,8 @@ class MangaController extends Controller
     public function show($id)
     {
         // Ambil data dari API
-        $response = Http::get("http://192.168.1.133:8080/id/{$id}");
+        $apiUrl = config('app.api_url');
+        $response = Http::get("{$apiUrl}/id/{$id}");
 
         if ($response->failed()) {
             abort(404, "Data manga tidak ditemukan.");

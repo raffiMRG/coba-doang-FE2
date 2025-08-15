@@ -118,8 +118,9 @@
 
                 try {
                     console.log(checked);
+                    const API_URL = "{{ config('app.api_url') }}";
 
-                    const res = await fetch('http://192.168.1.133:8080/folders', {
+                    const res = await fetch(API_URL + '/folders', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

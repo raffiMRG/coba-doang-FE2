@@ -59,7 +59,8 @@ class HomeController extends Controller
         $page = $request->query('page', 1);
 
         // Ambil data dari API
-        $response = Http::get("http://192.168.1.133:8080/newFolders", [
+        $apiUrl = config('app.api_url');
+        $response = Http::get("{$apiUrl}/newFolders", [
             'page' => $page
         ]);
 

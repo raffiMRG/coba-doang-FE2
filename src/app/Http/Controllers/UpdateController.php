@@ -10,7 +10,8 @@ class UpdateController extends Controller
     public function index()
     {
         // Panggil API eksternal
-        $response = Http::get('http://192.168.1.133:8080/update');
+        $apiUrl = config('app.api_url');
+        $response = Http::get($apiUrl . '/update');
 
         if ($response->failed()) {
             return view('update', [

@@ -9,7 +9,8 @@ class FolderController extends Controller
     public function index()
     {
         // Ambil data dari API
-        $response = Http::get('http://192.168.1.133:8080/folders');
+        $apiUrl = config('app.api_url');
+        $response = Http::get("{$apiUrl}/folders");
 
         if ($response->failed()) {
             // return view('folders.index', [
