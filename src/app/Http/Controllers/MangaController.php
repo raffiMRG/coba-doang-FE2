@@ -22,6 +22,13 @@ class MangaController extends Controller
             abort(500, "Format data tidak sesuai.");
         }
 
+        // Sort halaman manga (natural order, case insensitive)
+        if (isset($data['Data']['page']) && is_array($data['Data']['page'])) {
+            usort($data['Data']['page'], function ($a, $b) {
+                return strnatcmp($a, $b); // natural sorting: 1,2,10,11,20
+            });
+        }
+
         return view('manga.show', [
             'manga' => $data['Data']
         ]);

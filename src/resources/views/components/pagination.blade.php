@@ -1,5 +1,5 @@
 <nav aria-label="Page navigation" class="mt-6 flex justify-center">
-    <ul class="inline-flex -space-x-px text-sm">
+    <ul class="flex flex-wrap gap-2 text-sm">
         {{-- Previous --}}
         <li>
             <a href="{{ $page > 1 ? $baseUrl . '?page=' . ($page - 1) : '#' }}"

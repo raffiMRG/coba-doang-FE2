@@ -88,6 +88,8 @@
             @endforeach
         </ul>
 
+        <x-pagination :page="$page" :pages="$pages" :base-url="$baseUrl" />
+
         {{-- <button type="button"
             class="fixed bottom-6 right-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-8 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-4 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 shadow-lg">
             <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
