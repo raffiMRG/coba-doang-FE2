@@ -5,9 +5,10 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MangaController;
 use App\Http\Controllers\UpdateController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
-    return view('welcome');
+  return view('welcome');
 });
 
 Route::get('/folders', [FolderController::class, 'index']);
@@ -28,6 +29,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 // Halaman main
 Route::get('/status', [FolderController::class, 'index'])->name('status');
 
+Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 Route::get('/id/{id}', [MangaController::class, 'show']);
 
