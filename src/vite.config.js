@@ -7,7 +7,7 @@ export default defineConfig({
         host: "0.0.0.0",
         port: 5173,
         hmr: {
-            host: "192.168.1.133", // IP LAN kamu
+            host: "192.168.1.1", // IP LAN kamu
         },
     },
     plugins: [

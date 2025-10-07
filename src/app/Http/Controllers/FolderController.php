@@ -1,19 +1,21 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class FolderController extends Controller
 {
-    public function index()
+  public function index(Request $request)
     {
+        // Ambil halaman saat ini dari query parameter, default 1
+        $page = $request->query('page', 1);
+
         // Ambil data dari API
         $apiUrl = config('app.api_url');
-        $response = Http::get("{$apiUrl}/folders");
+        $response = Http::get("{$apiUrl}/folders", ['page' => $page, 'limit' => 100]);
 
         if ($response->failed()) {
-            // return view('folders.index', [
             return view('main', [
                 'folders' => [],
                 'error' => 'Gagal mengambil data dari API.'
@@ -22,10 +24,12 @@ class FolderController extends Controller
 
         $data = $response->json();
 
-        // return view('folders.index', [
-        return view('main', [
-            'folders' => $data['Data'] ?? [],
-            'error' => null
+return view('main', [
+          'folders' => $data['Data']['items'] ?? [],
+          'error' => null,
+          'page' => $data['Data']['pagination']['page'] ?? 1,
+          'pages' => $data['Data']['pagination']['pages'] ?? 1,
+          'baseUrl' => url('/status')
         ]);
     }
 }
