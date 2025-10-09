@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Home')
+@section('title', 'Bookmark')
 
 @section('content')
     @if ($error)
@@ -9,8 +9,9 @@
         <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
             @foreach ($folders as $folder)
                 {{-- <p>{{ var_dump($folder) }}</p> --}}
-                <x-card title="{{ $folder['name'] }}" image="{{ $folder['thumbnail'] }}" link="/id/{{ $folder['id'] }}"
-                    folderid="{{ $folder['id'] }}" isBookmarked="{{ $folder['is_bookmarked'] }}" />
+                <x-card title="{{ $folder['folder_name'] }}" image="{{ $folder['folder_thumbnail'] }}"
+                    link="/id/{{ $folder['folder_id'] }}" folderid="{{ $folder['folder_id'] }}"
+                    isBookmarked="{{ true }}" />
             @endforeach
         </div>
 
@@ -20,7 +21,6 @@
                 const isBookmarked = btn.dataset.bookmarked === 'true';
 
                 try {
-                    // const response = await fetch('http://localhost:8181/bookmarks', {
                     const response = await fetch(`{{ rtrim(config('app.api_url'), '/') }}/bookmarks`, {
                         method: 'POST',
                         headers: {
