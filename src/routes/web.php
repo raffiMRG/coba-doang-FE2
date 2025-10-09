@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookmarkController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
@@ -25,6 +26,8 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 // Route::get('/main', function () {
 //     return view('main');
 // })->name('main');
+
+Route::get('/bookmark', [BookmarkController::class, 'index'])->name('bookmark');
 
 // Halaman main
 Route::get('/status', [FolderController::class, 'index'])->name('status');
