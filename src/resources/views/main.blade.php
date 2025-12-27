@@ -9,31 +9,6 @@
     @if ($error)
         <p style="color: red;">{{ $error }}</p>
     @else
-        {{-- <table class="text-white">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Folder Name</th>
-                    <th>Action</th>
-                    <th>Thumbnail</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($folders as $folder)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $folder['name'] }}</td>
-                        <td><input id="default-checkbox" type="checkbox" value=""
-                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                        </td>
-                        <td>
-                            <img src="{{ $folder['thumbnail'] }}" class="w-3xs">
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table> --}}
-
         <div id="alert-4"
             class="hidden fixed top-3 right-6 items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
             role="alert">
@@ -58,6 +33,14 @@
             </button>
         </div>
 
+        <!-- Progress Box (hidden by default) -->
+        <div id="progressBox" class="fixed bottom-24 right-6 bg-white p-3 rounded shadow-md text-sm w-64 z-50">
+            <h4 class="font-semibold mb-2">Progress:</h4>
+            <div id="progressLogs" class="max-h-60 overflow-y-auto text-gray-700"></div>
+        </div>
+
+        <!-- Folder List with Checkboxes -->
+
         <ul class="grid w-full gap-6 md:grid-cols-1">
             @foreach ($folders as $folder)
                 <li>
@@ -77,15 +60,6 @@
 
         <x-pagination :page="$page" :pages="$pages" :base-url="$baseUrl" />
 
-        {{-- <button type="button"
-            class="fixed bottom-6 right-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-8 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-4 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 shadow-lg">
-            <svg class="w-8 h-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M1 5h12m0 0L9 1m4 4L9 9" />
-            </svg>
-            <span class="sr-only">Icon description</span>
-        </button> --}}
-
         <!-- Floating Action Button -->
         <button id="sendBtn" type="button"
             class="fixed bottom-6 right-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-8 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-4 text-center inline-flex items-center shadow-lg">
@@ -95,7 +69,7 @@
             </svg>
         </button>
 
-        <script>
+        {{-- <script>
             document.getElementById('sendBtn').addEventListener('click', async () => {
                 const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
                     .map(cb => parseInt(cb.value));
@@ -125,9 +99,107 @@
                     alert('Error bro: ' + err.message);
                 }
             });
+        </script> --}}
+        <script>
+            document.getElementById('sendBtn').addEventListener('click', async () => {
+                const checked = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                    .map(cb => parseInt(cb.value));
+
+                if (checked.length === 0) {
+                    document.getElementById('alert-4').classList.remove('hidden');
+                    return;
+                }
+
+                const API_URL = "{{ config('app.api_url') }}";
+                console.log('API URL:', API_URL);
+                // const progressBox = document.getElementById('progressBox') || createProgressBox();
+                // const progressBox = createProgressBox();
+                const progressBox = document.getElementById('progressBox');
+
+                try {
+                    console.log('Mengirim data:', checked);
+
+                    // 1️⃣ Kirim perintah untuk mulai proses pemindahan
+                    const res = await fetch(`${API_URL}/folders`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Id: checked
+                        })
+                    });
+
+                    if (!res.ok) throw new Error('Gagal memulai proses pemindahan');
+
+                    const result = await res.json();
+                    console.log('Hasilnya:', result);
+                    const taskID = result?.Data?.task_id; // ambil taskID dari respons backend
+
+                    console.log('Task ID:', taskID);
+
+                    // if (!taskID) throw new Error('Task ID tidak ditemukan di respons backend');
+
+                    if (!taskID) {
+                        log('Task ID tidak ditemukan di respons backend');
+                        return;
+                    }
+                    // 2️⃣ Mulai dengarkan SSE untuk progres dengan taskID
+                    listenProgress(`${API_URL}/folders/progress/${taskID}`, progressBox);
+
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+            });
+
+            /**
+             * Fungsi untuk membuka koneksi SSE dan menampilkan log progres.
+             */
+            function listenProgress(url, progressBox) {
+                const progressLogs = progressBox.querySelector('#progressLogs');
+                progressBox.classList.remove('hidden');
+                progressLogs.innerHTML = '';
+
+                const evtSource = new EventSource(url);
+
+                evtSource.addEventListener('progress', (e) => {
+                    console.log('Progress event:', e.data);
+                    progressLogs.innerHTML += `<div>📦 ${e.data}</div>`;
+                    progressLogs.scrollTop = progressLogs.scrollHeight;
+                });
+
+                evtSource.addEventListener('done', (e) => {
+                    progressLogs.innerHTML += `<div class="text-green-600 font-semibold mt-2">✅ ${e.data}</div>`;
+                    progressLogs.scrollTop = progressLogs.scrollHeight;
+                    evtSource.close();
+                });
+
+                evtSource.addEventListener('error', (e) => {
+                    console.log('e', e);
+
+                    progressLogs.innerHTML += `<div class="text-red-500 mt-2">⚠️ Terjadi kesalahan koneksi SSE.</div>`;
+                    progressLogs.scrollTop = progressLogs.scrollHeight;
+                    evtSource.close();
+                });
+            }
+
+            /**
+             * Fungsi untuk membuat UI progres jika belum ada.
+             */
+            function createProgressBox() {
+                const box = document.createElement('div');
+                box.id = 'progressBox';
+                box.className = 'fixed bottom-24 right-6 bg-white p-3 rounded shadow-md text-sm w-64 hidden z-50';
+                box.innerHTML = `
+        <h4 class="font-semibold mb-2">Progress:</h4>
+        <div id="progressLogs" class="max-h-60 overflow-y-auto text-gray-700"></div>
+    `;
+                document.body.appendChild(box);
+                return box;
+            }
         </script>
+
+
     @endif
 
 @endsection
-{{-- <img src="{{ fix_thumbnail_url($folder['thumbnail']) }}" style="width:100px;"> --}}
-{{-- <img src="{{ clean_thumbnail_url($folder['thumbnail']) }}" style="width:100px;"> --}}
