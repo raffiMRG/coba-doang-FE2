@@ -15,8 +15,9 @@ class BookmarkController extends Controller
     // Ambil data dari API
     $apiUrl = config('app.api_url');
     // $apiUrl = 'http://192.168.1.133:8181';
-    $response = Http::get("{$apiUrl}/bookmarks?page=1&limit=20", [
-      'page' => $page
+    $response = Http::get("{$apiUrl}/bookmarks", [
+      'page' => $page,
+      'limit' => 20
     ]);
 
     if ($response->failed()) {

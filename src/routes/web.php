@@ -12,7 +12,7 @@ Route::get('/', function () {
   return view('welcome');
 });
 
-Route::get('/folders', [FolderController::class, 'index']);
+// Route::get('/folders', [FolderController::class, 'index']);
 
 // Halaman utama
 // Route::get('/home', function () {
