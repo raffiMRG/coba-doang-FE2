@@ -23,9 +23,11 @@ FROM php:8.3-fpm
 # RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache && \
 #   chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-
+# .env will be copied at runtime by the entrypoint script
+# COPY .env /var/www/src/.env
 # Salin entrypoint.sh ke container
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
 
 # Beri permission executable
 RUN chmod +x /usr/local/bin/entrypoint.sh
