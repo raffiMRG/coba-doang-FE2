@@ -1,5 +1,11 @@
 ## GUIDE
 
+config yang perlu di perhatikan
+
+- .env
+- vite.config.js
+- src/config/app.php
+
 ```bash
 docker compose run --rm composer install
 ```
