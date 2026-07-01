@@ -27,7 +27,7 @@ return [
     */
 
   'env' => env('APP_ENV', 'production'),
-  'api_url' => env('API_URL', 'http://192.168.1.1:8080'),
+  'api_url' => env('API_BASEURL', 'http://192.168.0.129:8080'),
   // 'api_url' => env('API_URL', 'http://192.168.1.133:8181'),
 
   /*
