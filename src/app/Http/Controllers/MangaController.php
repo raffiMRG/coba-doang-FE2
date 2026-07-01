@@ -2,15 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Http;
-
 class MangaController extends Controller
 {
   public function show($id)
   {
     // Ambil data dari API
-    $apiUrl = config('app.api_url');
-    $response = Http::get("{$apiUrl}/id/{$id}");
+    $response = $this->backend()->get("/id/{$id}");
     // dd($response);
 
     if ($response->failed()) {

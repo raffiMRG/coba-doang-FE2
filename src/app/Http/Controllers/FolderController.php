@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class FolderController extends Controller
 {
@@ -13,8 +12,7 @@ class FolderController extends Controller
     $page = $request->query('page', 1);
 
     // Ambil data dari API
-    $apiUrl = config('app.api_url');
-    $response = Http::get("{$apiUrl}/folders", ['page' => $page, 'limit' => 100]);
+    $response = $this->backend()->get('/folders', ['page' => $page, 'limit' => 100]);
 
     if ($response->failed()) {
       return view('main', [

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class BookmarkController extends Controller
 {
@@ -13,9 +12,7 @@ class BookmarkController extends Controller
     $page = $request->query('page', 1);
 
     // Ambil data dari API
-    $apiUrl = config('app.api_url');
-    // $apiUrl = 'http://192.168.1.133:8181';
-    $response = Http::get("{$apiUrl}/bookmarks", [
+    $response = $this->backend()->get('/bookmarks', [
       'page' => $page,
       'limit' => 20
     ]);
