@@ -1,0 +1,34 @@
+# Production image: self-contained (composer install + npm build baked in),
+# php-fpm + nginx run together in one container. Used only by CI
+# (.github/workflows/deploy.yml) — local dev keeps using ./Dockerfile.
+
+FROM composer:2 AS vendor
+WORKDIR /app
+COPY src/ .
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+FROM node:22-alpine AS assets
+WORKDIR /app
+COPY src/package.json src/package-lock.json ./
+RUN npm ci
+COPY src/ .
+RUN npm run build
+
+FROM php:8.3-fpm
+
+RUN apt-get update && apt-get install -y --no-install-recommends nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www
+
+COPY --from=vendor /app ./
+COPY --from=assets /app/public/build ./public/build
+COPY docker/nginx.production.conf /etc/nginx/sites-enabled/default
+COPY docker/entrypoint.production.sh /usr/local/bin/entrypoint.sh
+
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+    && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
+
+EXPOSE 80
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
