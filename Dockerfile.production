@@ -2,7 +2,10 @@
 # php-fpm + nginx run together in one container. Used only by CI
 # (.github/workflows/deploy.yml) — local dev keeps using ./Dockerfile.
 
-FROM composer:2 AS vendor
+FROM php:8.3-cli AS vendor
+RUN apt-get update && apt-get install -y --no-install-recommends unzip git curl \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY src/ .
 RUN composer install --no-dev --optimize-autoloader --no-interaction
