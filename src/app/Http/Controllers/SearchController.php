@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class SearchController extends Controller
 {
@@ -15,7 +14,6 @@ class SearchController extends Controller
     $folders = [];
     $pages = 0;
     $baseUrl = '/search?query=' . urlencode($query);
-    $apiUrl = config('app.api_url');
 
     if (!$query) {
       $error = "Masukkan kata kunci pencarian.";
@@ -23,8 +21,7 @@ class SearchController extends Controller
     }
 
     try {
-      $response = Http::get("{$apiUrl}/search", [
-        // $response = Http::get("http://192.168.1.133:8181/search", [
+      $response = $this->backend()->get('/search', [
         'q' => $query,
         'page' => $page,
       ]);

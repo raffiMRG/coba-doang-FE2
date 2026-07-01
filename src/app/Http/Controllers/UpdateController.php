@@ -3,15 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class UpdateController extends Controller
 {
     public function index()
     {
         // Panggil API eksternal
-        $apiUrl = config('app.api_url');
-        $response = Http::get($apiUrl . '/update');
+        $response = $this->backend()->get('/update');
 
         if ($response->failed()) {
             return view('update', [
