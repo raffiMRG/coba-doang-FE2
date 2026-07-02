@@ -28,6 +28,7 @@ COPY --from=vendor /app ./
 COPY --from=assets /app/public/build ./public/build
 COPY docker/nginx.production.conf /etc/nginx/sites-enabled/default
 COPY docker/entrypoint.production.sh /usr/local/bin/entrypoint.sh
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
     && chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache

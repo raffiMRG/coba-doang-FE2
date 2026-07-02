@@ -27,6 +27,7 @@ FROM php:8.3-fpm
 # COPY .env /var/www/src/.env
 # Salin entrypoint.sh ke container
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
 
 # Beri permission executable

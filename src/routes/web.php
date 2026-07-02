@@ -10,8 +10,13 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UpdateController;
 use Illuminate\Support\Facades\Route;
 
-// Public — login only. Everything else requires an authenticated session.
-Route::get('/', [AuthController::class, 'showLogin']);
+// Public — "/" is a decoy showing the stock Laravel welcome page (doesn't
+// hint that a login/admin area exists at all). The real login lives at
+// /login. Everything else requires an authenticated session.
+Route::get('/', function () {
+  return view('welcome');
+});
+Route::get('/login', [AuthController::class, 'showLogin']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth.backend')->group(function () {
