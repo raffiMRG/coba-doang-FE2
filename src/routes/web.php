@@ -6,6 +6,7 @@ use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MangaController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UpdateController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,12 @@ Route::get('/', function () {
 });
 Route::get('/login', [AuthController::class, 'showLogin']);
 Route::post('/login', [AuthController::class, 'login']);
+
+// Public — same-origin re-serve of the backend's public /new and /sementara
+// static routes, so <img> tags never point at a different host/scheme than
+// the page itself (avoids mixed-content blocking over the public tunnel).
+Route::get('/new/{path}', [MediaController::class, 'newFile'])->where('path', '.*');
+Route::get('/sementara/{path}', [MediaController::class, 'sementaraFile'])->where('path', '.*');
 
 Route::middleware('auth.backend')->group(function () {
   Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
