@@ -51,7 +51,7 @@
                         <div class="flex items-center justify-between w-full">
                             <div class="w-12 text-sm">{{ $loop->iteration }}</div>
                             <div class="w-full text-sm">{{ $folder['name'] }}</div>
-                            <img src="{{ $folder['thumbnail'] }}" class="w-20">
+                            <img src="{{ same_origin_url($folder['thumbnail']) }}" class="w-20">
                         </div>
                     </label>
                 </li>
