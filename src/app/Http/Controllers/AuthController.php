@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
+  // Matches the backend's refresh token TTL (AuthRepositorys.RefreshTokenTTL).
+  private const REMEMBER_COOKIE_MINUTES = 30 * 24 * 60;
+  private const REMEMBER_COOKIE = 'remember_refresh_token';
+
   public function showLogin()
   {
     if (session('access_token')) {
@@ -34,10 +39,19 @@ class AuthController extends Controller
     }
 
     $data = $response->json('Data');
+    $refreshToken = $data['refresh_token'] ?? null;
+
     session([
       'access_token' => $data['access_token'] ?? null,
-      'refresh_token' => $data['refresh_token'] ?? null,
+      'refresh_token' => $refreshToken,
     ]);
+
+    // "Remember me" persists the refresh token in its own long-lived cookie,
+    // independent of the Laravel session's normal SESSION_LIFETIME — the
+    // auth middleware uses it to silently re-establish a session later.
+    if ($request->boolean('remember') && $refreshToken) {
+      Cookie::queue(self::REMEMBER_COOKIE, $refreshToken, self::REMEMBER_COOKIE_MINUTES);
+    }
 
     return redirect('/home');
   }
@@ -53,7 +67,8 @@ class AuthController extends Controller
     }
 
     session()->forget(['access_token', 'refresh_token']);
+    Cookie::queue(Cookie::forget(self::REMEMBER_COOKIE));
 
-    return redirect('/');
+    return redirect('/login');
   }
 }
