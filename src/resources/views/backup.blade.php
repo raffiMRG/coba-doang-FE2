@@ -3,50 +3,50 @@
 @section('title', 'Backup')
 
 @section('content')
-  <div class="max-w-screen-md mx-auto p-4">
-    <h1 class="mb-6 text-xl font-semibold text-gray-900 dark:text-white">Export / Import Database</h1>
+  <div class="max-w-screen-md mx-auto">
+    <h1 class="mb-6 text-2xl font-bold text-white tracking-tight">Export / Import Database</h1>
 
     @if (session('success'))
-      <div class="mb-4 p-3 text-sm text-green-800 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-900">
+      <div class="mb-4 p-3 text-sm rounded-lg bg-green-950/50 border border-green-900 text-green-300">
         {{ session('success') }}
       </div>
     @endif
 
     @if (session('error'))
-      <div class="mb-4 p-3 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-900">
+      <div class="mb-4 p-3 text-sm rounded-lg bg-red-950/50 border border-red-900 text-red-300">
         {{ session('error') }}
       </div>
     @endif
 
-    <div class="mb-8 p-4 bg-white rounded-lg shadow dark:bg-gray-900">
-      <h2 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">Export</h2>
-      <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <div class="mb-6 p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
+      <h2 class="mb-3 text-lg font-semibold text-white">Export</h2>
+      <p class="mb-4 text-sm text-gray-400">
         "Full" bisa dipakai restore ke database kosong (termasuk struktur tabel). "Data only" cuma
         data, asumsi tabelnya sudah ada.
       </p>
       <div class="flex gap-3">
         <a href="{{ route('backup.export', ['mode' => 'full']) }}"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700">
+          class="text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">
           Export (Full)
         </a>
         <a href="{{ route('backup.export', ['mode' => 'data']) }}"
-          class="text-gray-900 bg-white border border-gray-300 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+          class="text-gray-200 bg-gray-800 border border-gray-700 hover:bg-gray-700 focus:ring-4 focus:ring-gray-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">
           Export (Data only)
         </a>
       </div>
     </div>
 
-    <div class="p-4 bg-white rounded-lg shadow dark:bg-gray-900">
-      <h2 class="mb-3 text-lg font-medium text-gray-900 dark:text-white">Import</h2>
-      <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <div class="p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
+      <h2 class="mb-3 text-lg font-semibold text-white">Import</h2>
+      <p class="mb-4 text-sm text-gray-400">
         Upload file .sql hasil export sebelumnya. Import "Full" akan menghapus &amp; membuat ulang semua tabel.
       </p>
       <form method="POST" action="{{ route('backup.import') }}" enctype="multipart/form-data" class="flex items-center gap-3">
         @csrf
         <input type="file" name="file" accept=".sql" required
-          class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">
+          class="block w-full text-sm text-gray-300 border border-gray-700 rounded-lg cursor-pointer bg-gray-800 focus:outline-none file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-gray-700 file:text-gray-200 file:text-sm">
         <button type="submit"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 whitespace-nowrap">
+          class="text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition whitespace-nowrap">
           Import
         </button>
       </form>

@@ -4,10 +4,10 @@
 
 @section('content')
 
-    <h1 class="text-2xl font-bold mb-4">Update Result</h1>
+    <h1 class="text-2xl font-bold text-white tracking-tight mb-6">Update Result</h1>
 
     @if ($error)
-        <div class="p-4 text-red-800 border border-red-300 bg-red-50 rounded-lg">
+        <div class="p-4 rounded-lg bg-red-950/50 border border-red-900 text-red-300">
             {{ $error }}
         </div>
     @endif
@@ -17,8 +17,8 @@
             @php
                 $isSuccess = $msg['status'] === 'success';
                 $alertClass = $isSuccess
-                    ? 'text-green-800 border-green-300 bg-green-50 dark:bg-gray-800 dark:text-green-400 dark:border-green-800'
-                    : 'text-yellow-800 border-yellow-300 bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300 dark:border-yellow-800';
+                    ? 'bg-green-950/50 border-green-900 text-green-300'
+                    : 'bg-amber-950/50 border-amber-900 text-amber-300';
             @endphp
 
             <div class="flex items-center p-4 mb-4 text-sm border rounded-lg {{ $alertClass }}" role="alert">

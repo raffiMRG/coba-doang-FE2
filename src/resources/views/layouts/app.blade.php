@@ -10,11 +10,10 @@
     <title>@yield('title', 'manga')</title>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-800">
-    {{-- @include('components.header') --}}
+<body class="bg-gray-950 text-gray-100 antialiased">
     <x-navbar></x-navbar>
 
-    <main class="min-h-screen">
+    <main class="min-h-screen max-w-screen-xl mx-auto px-4 py-8">
         @yield('content')
     </main>
 

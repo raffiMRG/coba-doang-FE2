@@ -1,55 +1,46 @@
-<nav aria-label="Page navigation" class="mt-6 flex justify-center">
-    <ul class="flex flex-wrap gap-2 text-sm">
+<nav aria-label="Page navigation" class="mt-10 flex justify-center">
+    <ul class="flex flex-wrap items-center gap-1.5 text-sm">
         {{-- Previous --}}
         <li>
-            @if (isset($_GET['query']))
-                <a
-                    href="{{ $page > 1 ? $baseUrl . '&page=' . ($page - 1) : '#' }}"class="flex items-center justify-center px-3 h-8 ms-0 leading-tight border rounded-s-lg
-                      {{ $page > 1 ? 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
-                @else
-                    <a
-                        href="{{ $page > 1 ? $baseUrl . '?page=' . ($page - 1) : '#' }}"class="flex items-center justify-center px-3 h-8 ms-0 leading-tight border rounded-s-lg
-                      {{ $page > 1 ? 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
-            @endif
-            Previous
+            @php
+                $prevUrl = isset($_GET['query'])
+                    ? $baseUrl . '&page=' . ($page - 1)
+                    : $baseUrl . '?page=' . ($page - 1);
+            @endphp
+            <a href="{{ $page > 1 ? $prevUrl : '#' }}"
+                class="flex items-center justify-center px-3 h-9 rounded-lg border border-gray-800 transition
+                      {{ $page > 1 ? 'text-gray-300 bg-gray-900 hover:bg-gray-800 hover:text-white' : 'text-gray-600 bg-gray-900/50 cursor-not-allowed pointer-events-none' }}">
+                Previous
             </a>
         </li>
 
         {{-- Page Numbers --}}
         @for ($i = 1; $i <= $pages; $i++)
             <li>
-                @if (isset($_GET['query']))
-                    <a href="{{ $baseUrl . '&page=' . $i }}"
-                        class="flex items-center justify-center px-3 h-8 leading-tight border 
+                @php
+                    $pageUrl = isset($_GET['query']) ? $baseUrl . '&page=' . $i : $baseUrl . '?page=' . $i;
+                @endphp
+                <a href="{{ $pageUrl }}"
+                    class="flex items-center justify-center w-9 h-9 rounded-lg border transition
                           {{ $i == $page
-                              ? 'text-blue-600 border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
-                              : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' }}">
-                        {{ $i }}
-                    </a>
-                @else
-                    <a href="{{ $baseUrl . '?page=' . $i }}"
-                        class="flex items-center justify-center px-3 h-8 leading-tight border 
-                          {{ $i == $page
-                              ? 'text-blue-600 border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white'
-                              : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' }}">
-                        {{ $i }}
-                    </a>
-                @endif
+                              ? 'text-white bg-indigo-600 border-indigo-600'
+                              : 'text-gray-300 bg-gray-900 border-gray-800 hover:bg-gray-800 hover:text-white' }}">
+                    {{ $i }}
+                </a>
             </li>
         @endfor
 
         {{-- Next --}}
         <li>
-            @if (isset($_GET['query']))
-                <a href="{{ $page < $pages ? $baseUrl . '&page=' . ($page + 1) : '#' }}"
-                    class="flex items-center justify-center px-3 h-8 leading-tight border rounded-e-lg 
-                      {{ $page < $pages ? 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
-                @else
-                    <a href="{{ $page < $pages ? $baseUrl . '?page=' . ($page + 1) : '#' }}"
-                        class="flex items-center justify-center px-3 h-8 leading-tight border rounded-e-lg 
-                      {{ $page < $pages ? 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed' }}">
-            @endif
-            Next
+            @php
+                $nextUrl = isset($_GET['query'])
+                    ? $baseUrl . '&page=' . ($page + 1)
+                    : $baseUrl . '?page=' . ($page + 1);
+            @endphp
+            <a href="{{ $page < $pages ? $nextUrl : '#' }}"
+                class="flex items-center justify-center px-3 h-9 rounded-lg border border-gray-800 transition
+                      {{ $page < $pages ? 'text-gray-300 bg-gray-900 hover:bg-gray-800 hover:text-white' : 'text-gray-600 bg-gray-900/50 cursor-not-allowed pointer-events-none' }}">
+                Next
             </a>
         </li>
     </ul>
