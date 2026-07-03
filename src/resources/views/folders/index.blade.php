@@ -44,7 +44,8 @@
                         <td>{{ $folder['id'] }}</td>
                         <td>{{ $folder['name'] }}</td>
                         <td>
-                            <img src="{{ same_origin_url($folder['thumbnail']) }}" class="w-3xs">
+                            {{-- <img src="{{ same_origin_url($folder['thumbnail']) }}" class="w-3xs"> --}}
+                            <img src="https://i.imgur.com/TNOs1Xx.png" class="w-3xs">
                         </td>
                     </tr>
                 @endforeach

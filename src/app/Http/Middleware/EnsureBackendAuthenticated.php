@@ -13,7 +13,7 @@ class EnsureBackendAuthenticated
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (session('access_token')) {
+        if (session('access_token') && !$this->isExpiredOrExpiringSoon(session('access_token'))) {
             return $next($request);
         }
 
@@ -37,5 +37,33 @@ class EnsureBackendAuthenticated
         session()->forget(['access_token', 'refresh_token']);
 
         return redirect('/login');
+    }
+
+    /**
+     * Decodes a JWT's payload without verifying its signature — signature
+     * verification is still enforced by the backend on every request; this
+     * is only used to read the `exp` claim so we know to proactively refresh
+     * before sending a token we already know is stale.
+     */
+    private function decodeJwtPayload(string $jwt): ?array
+    {
+        $parts = explode('.', $jwt);
+        if (count($parts) !== 3) {
+            return null;
+        }
+
+        $payload = strtr($parts[1], '-_', '+/');
+        $payload .= str_repeat('=', (4 - strlen($payload) % 4) % 4);
+
+        $decoded = base64_decode($payload, true);
+
+        return $decoded === false ? null : json_decode($decoded, true);
+    }
+
+    private function isExpiredOrExpiringSoon(string $jwt, int $bufferSeconds = 30): bool
+    {
+        $exp = $this->decodeJwtPayload($jwt)['exp'] ?? null;
+
+        return !$exp || $exp <= (time() + $bufferSeconds);
     }
 }
