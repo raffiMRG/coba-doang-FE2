@@ -3,12 +3,17 @@
 @section('title', 'Bookmark')
 
 @section('content')
+    <h1 class="text-2xl font-bold text-white tracking-tight mb-6">Bookmark</h1>
+
     @if ($error)
-        <p class="text-red-500">{{ $error }}</p>
+        <div class="flex items-center gap-3 p-4 rounded-lg bg-red-950/50 border border-red-900 text-red-300">
+            {{ $error }}
+        </div>
+    @elseif (count($folders) === 0)
+        <p class="text-gray-500 text-center py-16">Belum ada bookmark.</p>
     @else
-        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             @foreach ($folders as $folder)
-                {{-- <p>{{ var_dump($folder) }}</p> --}}
                 <x-card title="{{ $folder['folder_name'] }}" image="{{ $folder['folder_thumbnail'] }}"
                     link="/id/{{ $folder['folder_id'] }}" folderid="{{ $folder['folder_id'] }}"
                     isBookmarked="{{ true }}" />
@@ -21,10 +26,13 @@
                 const isBookmarked = btn.dataset.bookmarked === 'true';
 
                 try {
-                    const response = await fetch(`{{ rtrim(config('app.api_url'), '/') }}/bookmarks`, {
+                    // Lewat Laravel (bukan langsung ke backend Go), karena
+                    // browser tidak punya akses ke access_token di session.
+                    const response = await fetch('/bookmarks/toggle', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '')
                         },
                         body: JSON.stringify({
                             folder_id: folderId

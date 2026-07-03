@@ -43,4 +43,15 @@ class BookmarkController extends Controller
       'baseUrl' => url('/bookmark')
     ]);
   }
+
+  /**
+   * Same-origin relay for the bookmark-toggle browser fetch() used on
+   * home/search/bookmark pages — same reason as FolderController::move().
+   */
+  public function toggle(Request $request)
+  {
+    $response = $this->backend()->post('/bookmarks', $request->all());
+
+    return response()->json($response->json(), $response->status());
+  }
 }
