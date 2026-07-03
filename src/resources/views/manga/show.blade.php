@@ -32,8 +32,8 @@
             </div>
         </div>
         @foreach ($manga['page'] as $page)
-            <img src="{{ same_origin_url(rtrim(dirname($manga['thumbnail']), '/') . '/' . $page) }}" alt="Page {{ $loop->iteration }}">
-            {{-- <img src="/img/1.webp" alt="Page {{ $loop->iteration }}"> --}}
+            {{-- <img src="{{ same_origin_url(rtrim(dirname($manga['thumbnail']), '/') . '/' . $page) }}" alt="Page {{ $loop->iteration }}"> --}}
+            <img src="https://i.imgur.com/TNOs1Xx.png" alt="Page {{ $loop->iteration }}">
         @endforeach
     </div>
     @include('components.footer')

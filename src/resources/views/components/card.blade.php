@@ -30,8 +30,6 @@
 
     <a href="{{ $link }}">
         <img class="rounded-t-lg" src="{{ $image }}" alt="{{ $title }}" />
-        {{-- <img class="rounded-t-lg" src="img/1.webp" alt="{{ $title }}" /> --}}
-
     </a>
     <div class="p-5">
         <a href="{{ $link }}">

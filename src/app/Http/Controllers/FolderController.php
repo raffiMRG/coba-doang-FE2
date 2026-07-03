@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class FolderController extends Controller
 {
@@ -15,9 +16,16 @@ class FolderController extends Controller
     $response = $this->backend()->get('/folders', ['page' => $page, 'limit' => 100]);
 
     if ($response->failed()) {
+      Log::error('Failed to fetch /folders from backend', [
+        'status' => $response->status(),
+        'body' => $response->body(),
+      ]);
+
       return view('main', [
         'folders' => [],
-        'error' => 'Gagal mengambil data dari API.'
+        'error' => config('app.debug')
+          ? "Gagal mengambil data dari API (HTTP {$response->status()}): {$response->body()}"
+          : 'Gagal mengambil data dari API.'
       ]);
     }
 

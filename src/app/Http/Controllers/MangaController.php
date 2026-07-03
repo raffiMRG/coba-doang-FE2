@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log;
+
 class MangaController extends Controller
 {
   public function show($id)
@@ -12,7 +14,14 @@ class MangaController extends Controller
 
     if ($response->failed()) {
       // dd("Masuk kondiisi failed!!");
-      abort(404, "Data manga tidak ditemukan.");
+      Log::error("Failed to fetch /id/{$id} from backend", [
+        'status' => $response->status(),
+        'body' => $response->body(),
+      ]);
+
+      abort(404, config('app.debug')
+        ? "Data manga tidak ditemukan (HTTP {$response->status()}): {$response->body()}"
+        : "Data manga tidak ditemukan.");
     }
 
     $data = $response->json();
