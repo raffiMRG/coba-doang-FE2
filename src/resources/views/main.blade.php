@@ -4,13 +4,15 @@
 
 @section('content')
 
-    {{-- <h1 class="">Folder List</h1> --}}
+    <h1 class="text-2xl font-bold text-white tracking-tight mb-6">Status</h1>
 
     @if ($error)
-        <p style="color: red;">{{ $error }}</p>
+        <div class="flex items-center gap-3 p-4 rounded-lg bg-red-950/50 border border-red-900 text-red-300">
+            {{ $error }}
+        </div>
     @else
         <div id="alert-4"
-            class="hidden fixed top-3 right-6 items-center p-4 mb-4 text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300"
+            class="hidden fixed top-3 right-6 items-center p-4 mb-4 rounded-lg bg-amber-950/90 backdrop-blur border border-amber-900 text-amber-300 shadow-lg z-50"
             role="alert">
             <svg class="shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                 viewBox="0 0 20 20">
@@ -22,7 +24,7 @@
                 Pilih minimal 1 sebelum melanjutkan.
             </div>
             <button type="button"
-                class="ms-auto -mx-1.5 -my-1.5 bg-yellow-50 text-yellow-500 rounded-lg focus:ring-2 focus:ring-yellow-400 p-1.5 hover:bg-yellow-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-yellow-300 dark:hover:bg-gray-700"
+                class="ms-auto -mx-1.5 -my-1.5 bg-amber-950 text-amber-400 rounded-lg focus:ring-2 focus:ring-amber-700 p-1.5 hover:bg-amber-900 inline-flex items-center justify-center h-8 w-8"
                 data-dismiss-target="#alert-4" aria-label="Close">
                 <span class="sr-only">Close</span>
                 <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -34,36 +36,63 @@
         </div>
 
         <!-- Progress Box (hidden by default) -->
-        <div id="progressBox" class="fixed bottom-24 right-6 bg-white p-3 rounded shadow-md text-sm w-64 z-50">
-            <h4 class="font-semibold mb-2">Progress:</h4>
-            <div id="progressLogs" class="max-h-60 overflow-y-auto text-gray-700"></div>
+        <div id="progressBox"
+            class="hidden fixed bottom-24 right-6 bg-gray-900 border border-gray-800 p-4 rounded-xl shadow-xl text-sm w-72 z-50">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-white">Memindahkan folder</h4>
+                <span id="progressPercent" class="text-indigo-400 font-semibold text-xs">0%</span>
+            </div>
+            <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300 ease-out"
+                    style="width: 0%"></div>
+            </div>
+            <div id="progressStatus" class="mt-2 text-xs text-gray-400">Memulai...</div>
         </div>
 
         <!-- Folder List with Checkboxes -->
 
-        <ul class="grid w-full gap-6 md:grid-cols-1">
-            @foreach ($folders as $folder)
-                <li>
-                    <input type="checkbox" id="{{ $folder['id'] }}-option" value={{ $folder['id'] }} class="hidden peer"
-                        required="">
-                    <label for="{{ $folder['id'] }}-option"
-                        class="inline-flex items-center justify-between w-full p-3 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 dark:peer-checked:border-blue-600 hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700">
-                        <div class="flex items-center justify-between w-full">
-                            <div class="w-12 text-sm">{{ $loop->iteration }}</div>
-                            <div class="w-full text-sm">{{ $folder['name'] }}</div>
-                            <img src="{{ same_origin_url($folder['thumbnail']) }}" class="w-20">
-                        </div>
-                    </label>
-                </li>
-            @endforeach
-        </ul>
+        @if (count($folders) === 0)
+            <p class="text-gray-500 text-center py-16">Tidak ada folder untuk dipindahkan.</p>
+        @else
+            <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                @foreach ($folders as $folder)
+                    <li>
+                        <label
+                            class="group relative block rounded-xl overflow-hidden bg-gray-900 ring-1 ring-white/10 cursor-pointer transition hover:-translate-y-1 hover:ring-indigo-500/60 has-checked:ring-2 has-checked:ring-indigo-500">
+                            <input type="checkbox" id="{{ $folder['id'] }}-option" value="{{ $folder['id'] }}"
+                                class="sr-only">
+                            <div class="aspect-3/4 w-full overflow-hidden bg-gray-800">
+                                {{-- <img src="{{ same_origin_url($folder['thumbnail']) }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105"> --}}
+                                <img src="https://i.imgur.com/TNOs1Xx.png"
+                                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                            </div>
+                            <div
+                                class="absolute inset-x-0 bottom-0 bg-linear-to-t from-gray-950 via-gray-950/80 to-transparent px-3 pt-8 pb-3">
+                                <p class="text-sm font-semibold text-white leading-snug line-clamp-2">
+                                    {{ $folder['name'] }}
+                                </p>
+                            </div>
+                            <div
+                                class="absolute top-2 right-2 w-6 h-6 rounded-full border-2 border-white/70 bg-gray-950/40 backdrop-blur flex items-center justify-center transition group-has-checked:bg-indigo-600 group-has-checked:border-indigo-500">
+                                <svg class="w-4 h-4 text-white opacity-0 transition group-has-checked:opacity-100"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </label>
+                    </li>
+                @endforeach
+            </ul>
 
-        <x-pagination :page="$page" :pages="$pages" :base-url="$baseUrl" />
+            <x-pagination :page="$page" :pages="$pages" :base-url="$baseUrl" />
+        @endif
 
         <!-- Floating Action Button -->
         <button id="sendBtn" type="button"
-            class="fixed bottom-6 right-6 text-white bg-blue-700 hover:bg-blue-800 focus:ring-8 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-4 text-center inline-flex items-center shadow-lg">
-            <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+            class="fixed bottom-6 right-6 text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:outline-none focus:ring-indigo-800 font-medium rounded-full text-sm p-4 text-center inline-flex items-center shadow-lg shadow-indigo-950/50 transition">
+            <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M1 5h12m0 0L9 1m4 4L9 9" />
             </svg>
@@ -110,8 +139,6 @@
                     return;
                 }
 
-                const API_URL = "{{ config('app.api_url') }}";
-                console.log('API URL:', API_URL);
                 // const progressBox = document.getElementById('progressBox') || createProgressBox();
                 // const progressBox = createProgressBox();
                 const progressBox = document.getElementById('progressBox');
@@ -119,11 +146,14 @@
                 try {
                     console.log('Mengirim data:', checked);
 
-                    // 1️⃣ Kirim perintah untuk mulai proses pemindahan
-                    const res = await fetch(`${API_URL}/folders`, {
+                    // 1️⃣ Kirim perintah untuk mulai proses pemindahan — lewat
+                    // Laravel (bukan langsung ke backend Go), karena browser
+                    // tidak punya akses ke access_token yang tersimpan di session.
+                    const res = await fetch('/status/move', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '')
                         },
                         body: JSON.stringify({
                             Id: checked
@@ -144,8 +174,10 @@
                         log('Task ID tidak ditemukan di respons backend');
                         return;
                     }
-                    // 2️⃣ Mulai dengarkan SSE untuk progres dengan taskID
-                    listenProgress(`${API_URL}/folders/progress/${taskID}`, progressBox);
+                    // 2️⃣ Mulai dengarkan SSE untuk progres dengan taskID — juga
+                    // lewat Laravel: EventSource tidak bisa kirim Authorization
+                    // header sama sekali, jadi tidak bisa langsung ke backend.
+                    listenProgress(`/status/progress/${taskID}`, progressBox, checked.length);
 
                 } catch (err) {
                     alert('Error: ' + err.message);
@@ -153,32 +185,45 @@
             });
 
             /**
-             * Fungsi untuk membuka koneksi SSE dan menampilkan log progres.
+             * Fungsi untuk membuka koneksi SSE dan menampilkan determinate
+             * progress bar. Backend cuma kirim persentase mentah (0-100, satu
+             * tick per folder selesai) — jumlah folder (total) sudah diketahui
+             * di client, jadi hitungan "X dari Y" dihitung di sini.
              */
-            function listenProgress(url, progressBox) {
-                const progressLogs = progressBox.querySelector('#progressLogs');
+            function listenProgress(url, progressBox, total) {
+                const bar = progressBox.querySelector('#progressBar');
+                const percentLabel = progressBox.querySelector('#progressPercent');
+                const status = progressBox.querySelector('#progressStatus');
+
                 progressBox.classList.remove('hidden');
-                progressLogs.innerHTML = '';
+                bar.classList.remove('bg-red-500');
+                bar.classList.add('bg-indigo-500');
+                bar.style.width = '0%';
+                percentLabel.textContent = '0%';
+                status.textContent = 'Memulai...';
 
                 const evtSource = new EventSource(url);
 
                 evtSource.addEventListener('progress', (e) => {
-                    console.log('Progress event:', e.data);
-                    progressLogs.innerHTML += `<div>📦 ${e.data}</div>`;
-                    progressLogs.scrollTop = progressLogs.scrollHeight;
+                    const pct = parseFloat(e.data);
+                    const done = Math.round((pct / 100) * total);
+                    bar.style.width = `${pct}%`;
+                    percentLabel.textContent = `${Math.round(pct)}%`;
+                    status.textContent = `${done} dari ${total} folder dipindahkan`;
                 });
 
-                evtSource.addEventListener('done', (e) => {
-                    progressLogs.innerHTML += `<div class="text-green-600 font-semibold mt-2">✅ ${e.data}</div>`;
-                    progressLogs.scrollTop = progressLogs.scrollHeight;
+                evtSource.addEventListener('done', () => {
+                    bar.style.width = '100%';
+                    percentLabel.textContent = '100%';
+                    status.textContent = `✅ ${total} folder selesai dipindahkan`;
                     evtSource.close();
+                    setTimeout(() => progressBox.classList.add('hidden'), 4000);
                 });
 
-                evtSource.addEventListener('error', (e) => {
-                    console.log('e', e);
-
-                    progressLogs.innerHTML += `<div class="text-red-500 mt-2">⚠️ Terjadi kesalahan koneksi SSE.</div>`;
-                    progressLogs.scrollTop = progressLogs.scrollHeight;
+                evtSource.addEventListener('error', () => {
+                    bar.classList.remove('bg-indigo-500');
+                    bar.classList.add('bg-red-500');
+                    status.textContent = '⚠️ Terjadi kesalahan koneksi SSE.';
                     evtSource.close();
                 });
             }
@@ -189,10 +234,16 @@
             function createProgressBox() {
                 const box = document.createElement('div');
                 box.id = 'progressBox';
-                box.className = 'fixed bottom-24 right-6 bg-white p-3 rounded shadow-md text-sm w-64 hidden z-50';
+                box.className = 'fixed bottom-24 right-6 bg-gray-900 border border-gray-800 p-4 rounded-xl shadow-xl text-sm w-72 hidden z-50';
                 box.innerHTML = `
-        <h4 class="font-semibold mb-2">Progress:</h4>
-        <div id="progressLogs" class="max-h-60 overflow-y-auto text-gray-700"></div>
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="font-semibold text-white">Memindahkan folder</h4>
+            <span id="progressPercent" class="text-indigo-400 font-semibold text-xs">0%</span>
+        </div>
+        <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
+        <div id="progressStatus" class="mt-2 text-xs text-gray-400">Memulai...</div>
     `;
                 document.body.appendChild(box);
                 return box;

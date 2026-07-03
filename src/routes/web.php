@@ -31,7 +31,10 @@ Route::middleware('auth.backend')->group(function () {
 
   Route::get('/home', [HomeController::class, 'index'])->name('home');
   Route::get('/bookmark', [BookmarkController::class, 'index'])->name('bookmark');
+  Route::post('/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
   Route::get('/status', [FolderController::class, 'index'])->name('status');
+  Route::post('/status/move', [FolderController::class, 'move'])->name('status.move');
+  Route::get('/status/progress/{taskId}', [FolderController::class, 'progress'])->name('status.progress');
   Route::get('/search', [SearchController::class, 'index'])->name('search');
   Route::get('/id/{id}', [MangaController::class, 'show']);
   Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
