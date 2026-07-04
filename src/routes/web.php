@@ -42,4 +42,5 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');
   Route::post('/backup/import', [BackupController::class, 'import'])->name('backup.import');
+  Route::get('/backup/export-dst-folders', [BackupController::class, 'exportDstFolders'])->name('backup.exportDstFolders');
 });
