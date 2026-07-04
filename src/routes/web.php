@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\ExtractController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MangaController;
@@ -38,6 +39,7 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/search', [SearchController::class, 'index'])->name('search');
   Route::get('/id/{id}', [MangaController::class, 'show']);
   Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
+  Route::get('/extract', [ExtractController::class, 'index'])->name('extract');
 
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');
