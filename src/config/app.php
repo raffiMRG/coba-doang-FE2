@@ -32,6 +32,10 @@ return [
   // 'api_url' => env('API_URL', 'http://192.168.1.1:8080'),
   // 'api_url' => env('API_URL', 'http://192.168.1.133:8181'),
 
+  // Local zip-extract worker daemon — read directly by client-side JS in the
+  // extract page, since the browser (not this server) talks to it.
+  'extract_daemon_url' => env('EXTRACT_DAEMON_URL', 'http://localhost:9099'),
+
   /*
     |--------------------------------------------------------------------------
     | Application Debug Mode
