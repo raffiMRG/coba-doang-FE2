@@ -28,6 +28,22 @@ class BackupController extends Controller
     ]);
   }
 
+  public function exportDstFolders()
+  {
+    $response = $this->backend()->get('/export/folders');
+
+    if ($response->failed()) {
+      abort(500, 'Gagal export daftar folder DST_DIR dari backend.');
+    }
+
+    $filename = 'dst-folders-' . now()->format('Ymd-His') . '.txt';
+
+    return response($response->body(), 200, [
+      'Content-Type' => 'text/plain',
+      'Content-Disposition' => "attachment; filename={$filename}",
+    ]);
+  }
+
   public function import(Request $request)
   {
     $request->validate([

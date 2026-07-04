@@ -36,6 +36,18 @@
       </div>
     </div>
 
+    <div class="mb-6 p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
+      <h2 class="mb-3 text-lg font-semibold text-white">Export Folder List (DST_DIR)</h2>
+      <p class="mb-4 text-sm text-gray-400">
+        Scan folder yang ada di DST_DIR (folder "done" di home server) dan export nama-nama
+        foldernya sebagai file teks (terurut alfabet) — untuk dibandingkan manual dengan backup lama.
+      </p>
+      <a href="{{ route('backup.exportDstFolders') }}"
+        class="text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition inline-block">
+        Export Folder List
+      </a>
+    </div>
+
     <div class="p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
       <h2 class="mb-3 text-lg font-semibold text-white">Import</h2>
       <p class="mb-4 text-sm text-gray-400">
