@@ -16,7 +16,7 @@
             @foreach ($folders as $folder)
                 <x-card title="{{ $folder['folder_name'] }}" image="{{ $folder['folder_thumbnail'] }}"
                     link="/id/{{ $folder['folder_id'] }}" folderid="{{ $folder['folder_id'] }}"
-                    isBookmarked="{{ true }}" />
+                    isBookmarked="{{ true }}" isTranslated="{{ false }}" />
             @endforeach
         </div>
 

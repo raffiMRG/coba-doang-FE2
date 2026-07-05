@@ -18,7 +18,8 @@
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 @foreach ($folders as $folder)
                     <x-card title="{{ $folder['name'] }}" image="{{ $folder['thumbnail'] }}" link="/id/{{ $folder['id'] }}"
-                        folderid="{{ $folder['id'] }}" isBookmarked="{{ $folder['is_bookmarked'] }}" />
+                        folderid="{{ $folder['id'] }}" isBookmarked="{{ $folder['is_bookmarked'] }}"
+                        isTranslated="{{ $folder['is_translated'] }}" />
                 @endforeach
             </div>
 
