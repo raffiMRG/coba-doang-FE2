@@ -21,7 +21,7 @@ class Card extends Component
     {
         $this->title = $title;
         // $this->description = $description;
-        $this->image = same_origin_url($image);
+        $this->image = thumbnail_url($image);
         $this->link = $link;
     }
 
