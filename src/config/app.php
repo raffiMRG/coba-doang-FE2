@@ -36,6 +36,9 @@ return [
   // extract page, since the browser (not this server) talks to it.
   'extract_daemon_url' => env('EXTRACT_DAEMON_URL', 'http://localhost:9099'),
 
+  // Local translate worker daemon — same reasoning as extract_daemon_url.
+  'translate_daemon_url' => env('TRANSLATE_DAEMON_URL', 'http://localhost:9101'),
+
   /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

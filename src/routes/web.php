@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MangaController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\TranslateController;
 use App\Http\Controllers\UpdateController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,8 @@ Route::middleware('auth.backend')->group(function () {
   Route::delete('/id/{id}', [MangaController::class, 'destroy'])->name('manga.destroy');
   Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
   Route::get('/extract', [ExtractController::class, 'index'])->name('extract');
+  Route::get('/translate', [TranslateController::class, 'index'])->name('translate');
+  Route::post('/translate/{id}/request', [TranslateController::class, 'request'])->name('translate.request');
 
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');
