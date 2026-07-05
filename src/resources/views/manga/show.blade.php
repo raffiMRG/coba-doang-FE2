@@ -13,15 +13,9 @@
 
     <div class="bg-gray-950/90 backdrop-blur border-b border-gray-800">
         <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <a href="javascript:history.back()" class="flex items-center gap-1 text-gray-400 hover:text-white transition text-sm shrink-0">
-                <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12.5 15 7.5 10l5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                Back
-            </a>
-            <h1 id="mangaTitle" class="text-sm font-semibold text-white truncate">{{ $manga['name'] }}</h1>
-            <div class="flex items-center gap-2 shrink-0">
-                <span class="text-xs text-gray-500">{{ count($manga['page']) }} pages</span>
+            <h1 id="mangaTitle" class="min-w-0 flex-1 truncate text-sm font-semibold text-white">{{ $manga['name'] }}</h1>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-xs text-gray-500 mr-1">{{ count($manga['page']) }} pages</span>
 
                 @php
                     $translateBadges = [
@@ -33,12 +27,16 @@
                     ];
                     [$translateBadgeText, $translateBadgeClass] = $translateBadges[$manga['translation_status'] ?? 'none'] ?? $translateBadges['none'];
                 @endphp
-                <span id="translateBadge" class="px-3 py-1 rounded-full text-xs font-medium {{ $translateBadgeClass }}">
+                <span id="translateBadge" class="hidden sm:inline-block px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap {{ $translateBadgeClass }}">
                     {{ $translateBadgeText }}
                 </span>
-                <button id="requestTranslateBtn" type="button"
-                    class="text-white bg-indigo-600 hover:bg-indigo-500 font-medium rounded-lg text-xs px-3 py-1.5 transition">
-                    Request Translate
+
+                <button id="requestTranslateBtn" type="button" title="Request Translate"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.913 17H20.087M12.913 17L11 21M12.913 17L15.7783 11.009C16.0092 10.5263 16.1246 10.2849 16.2826 10.2086C16.4199 10.1423 16.5801 10.1423 16.7174 10.2086C16.8754 10.2849 16.9908 10.5263 17.2217 11.009L20.087 17M20.087 17L22 21M2 5H8M8 5H11.5M8 5V3M11.5 5H14M11.5 5C11.0039 7.95729 9.85259 10.6362 8.16555 12.8844M10 14C9.38747 13.7248 8.76265 13.3421 8.16555 12.8844M8.16555 12.8844C6.81302 11.8478 5.60276 10.4266 5 9M8.16555 12.8844C6.56086 15.0229 4.47143 16.7718 2 18"
+                            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </button>
 
                 <button id="editBtn" type="button" title="Edit"
