@@ -37,8 +37,7 @@
 
     <a href="{{ $link }}" class="block">
         <div class="aspect-3/4 w-full overflow-hidden bg-gray-800">
-            {{-- <img src="{{ $image }}" alt="{{ $title }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" /> --}}
-            <img src="https://i.imgur.com/TNOs1Xx.png" alt="{{ $title }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+            <img src="{{ $image }}" alt="{{ $title }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
         </div>
         <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-gray-950 via-gray-950/80 to-transparent px-3 pt-8 pb-3">
             <p class="text-sm font-semibold text-white leading-snug line-clamp-2">
