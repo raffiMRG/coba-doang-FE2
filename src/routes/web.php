@@ -38,6 +38,8 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/status/progress/{taskId}', [FolderController::class, 'progress'])->name('status.progress');
   Route::get('/search', [SearchController::class, 'index'])->name('search');
   Route::get('/id/{id}', [MangaController::class, 'show']);
+  Route::patch('/id/{id}', [MangaController::class, 'update'])->name('manga.update');
+  Route::delete('/id/{id}', [MangaController::class, 'destroy'])->name('manga.destroy');
   Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
   Route::get('/extract', [ExtractController::class, 'index'])->name('extract');
 

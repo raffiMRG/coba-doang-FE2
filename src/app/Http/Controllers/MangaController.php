@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class MangaController extends Controller
@@ -42,5 +43,26 @@ class MangaController extends Controller
     return view('manga.show', [
       'manga' => $data['Data']
     ]);
+  }
+
+  /**
+   * Same-origin relay for the Edit modal's fetch() in manga/show.blade.php —
+   * same reason as BookmarkController::toggle().
+   */
+  public function update(Request $request, $id)
+  {
+    $response = $this->backend()->patch("/id/{$id}", $request->all());
+
+    return response()->json($response->json(), $response->status());
+  }
+
+  /**
+   * Same-origin relay for the Delete modal's fetch() in manga/show.blade.php.
+   */
+  public function destroy(Request $request, $id)
+  {
+    $response = $this->backend()->delete("/id/{$id}", $request->all());
+
+    return response()->json($response->json(), $response->status());
   }
 }
