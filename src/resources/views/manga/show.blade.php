@@ -22,6 +22,25 @@
             <h1 id="mangaTitle" class="text-sm font-semibold text-white truncate">{{ $manga['name'] }}</h1>
             <div class="flex items-center gap-2 shrink-0">
                 <span class="text-xs text-gray-500">{{ count($manga['page']) }} pages</span>
+
+                @php
+                    $translateBadges = [
+                        'none' => ['Belum diminta', 'bg-gray-800 text-gray-400 border border-gray-700'],
+                        'pending' => ['Menunggu diterjemahkan', 'bg-yellow-950/50 text-yellow-300 border border-yellow-900'],
+                        'processing' => ['Menunggu diterjemahkan', 'bg-yellow-950/50 text-yellow-300 border border-yellow-900'],
+                        'completed' => ['Sudah diterjemahkan', 'bg-green-950/50 text-green-300 border border-green-900'],
+                        'failed' => ['Gagal diterjemahkan', 'bg-red-950/50 text-red-300 border border-red-900'],
+                    ];
+                    [$translateBadgeText, $translateBadgeClass] = $translateBadges[$manga['translation_status'] ?? 'none'] ?? $translateBadges['none'];
+                @endphp
+                <span id="translateBadge" class="px-3 py-1 rounded-full text-xs font-medium {{ $translateBadgeClass }}">
+                    {{ $translateBadgeText }}
+                </span>
+                <button id="requestTranslateBtn" type="button"
+                    class="text-white bg-indigo-600 hover:bg-indigo-500 font-medium rounded-lg text-xs px-3 py-1.5 transition">
+                    Request Translate
+                </button>
+
                 <button id="editBtn" type="button" title="Edit"
                     class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition">
                     <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -94,6 +113,36 @@
         function getXsrfToken() {
             return decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '');
         }
+
+        const translateBadgeStyles = {
+            none: ['Belum diminta', 'bg-gray-800 text-gray-400 border border-gray-700'],
+            pending: ['Menunggu diterjemahkan', 'bg-yellow-950/50 text-yellow-300 border border-yellow-900'],
+            processing: ['Menunggu diterjemahkan', 'bg-yellow-950/50 text-yellow-300 border border-yellow-900'],
+            completed: ['Sudah diterjemahkan', 'bg-green-950/50 text-green-300 border border-green-900'],
+            failed: ['Gagal diterjemahkan', 'bg-red-950/50 text-red-300 border border-red-900'],
+        };
+
+        function setTranslateBadge(status) {
+            const [text, classes] = translateBadgeStyles[status] || translateBadgeStyles.none;
+            const badge = document.getElementById('translateBadge');
+            badge.textContent = text;
+            badge.className = `px-3 py-1 rounded-full text-xs font-medium ${classes}`;
+        }
+
+        document.getElementById('requestTranslateBtn').addEventListener('click', async () => {
+            try {
+                const res = await fetch(`/translate/${mangaId}/request`, {
+                    method: 'POST',
+                    headers: { 'X-XSRF-TOKEN': getXsrfToken() },
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.Message || 'Gagal meminta translate');
+
+                setTranslateBadge(result.Data.status);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
 
         const editModal = document.getElementById('editModal');
         document.getElementById('editBtn').addEventListener('click', () => editModal.classList.remove('hidden'));
