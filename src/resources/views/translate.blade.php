@@ -15,6 +15,7 @@
         <div>
           <h2 class="text-lg font-semibold text-white">Worker</h2>
           <p class="text-sm text-gray-400">Daemon lokal (manga-image-translator) yang menjalankan proses translate di laptop kamu.</p>
+          <p id="workerUrl" class="text-xs text-gray-500 font-mono mt-1"></p>
         </div>
         <span id="workerBadge"
           class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-400 border border-gray-700">
@@ -77,6 +78,7 @@
     // itself). Port still comes from config/.env in case it's ever changed.
     const DAEMON_PORT = {{ parse_url(config('app.translate_daemon_url'), PHP_URL_PORT) ?? 9101 }};
     const DAEMON_URL = `http://${window.location.hostname}:${DAEMON_PORT}`;
+    document.getElementById('workerUrl').textContent = DAEMON_URL;
 
     const workerBadge = document.getElementById('workerBadge');
     const startBtn = document.getElementById('startBtn');
