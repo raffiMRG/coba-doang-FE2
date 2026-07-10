@@ -64,15 +64,29 @@ abstract class Controller
             }
 
             $body = $upstream->toPsrResponse()->getBody();
-            while (!$body->eof()) {
-                if (connection_aborted()) {
-                    break;
+            try {
+                while (!$body->eof()) {
+                    if (connection_aborted()) {
+                        break;
+                    }
+                    echo $body->read(1024);
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
                 }
-                echo $body->read(1024);
-                if (ob_get_level() > 0) {
-                    ob_flush();
-                }
-                flush();
+            } finally {
+                // Explicitly close the upstream connection the moment we
+                // stop reading — whether from a client disconnect, our own
+                // 55s timeout, or a natural EOF. Without this, PHP only
+                // tears the curl handle down whenever GC/request-shutdown
+                // gets to it, which can lag; the daemon's /progress handler
+                // only notices a dead client once a second (threading.
+                // Condition polling) — repeated reconnects without a clean
+                // close piled up dozens of stuck threads on the daemon and
+                // hung it entirely (observed in production: 41 threads,
+                // completely unresponsive, fixed by a container restart).
+                $body->close();
             }
         }, 200, [
             'Content-Type' => 'text/event-stream',
