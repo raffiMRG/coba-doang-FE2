@@ -78,6 +78,10 @@
     // through (see TranslateController::ping/start/progress).
     const DAEMON_URL = "{{ url('/translate/worker') }}";
 
+    function getXsrfToken() {
+      return decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '');
+    }
+
     const workerBadge = document.getElementById('workerBadge');
     const startBtn = document.getElementById('startBtn');
     const progressBox = document.getElementById('progressBox');
@@ -187,7 +191,10 @@
         try {
           const res = await fetch(DAEMON_URL + '/start', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'X-XSRF-TOKEN': getXsrfToken(),
+            },
             body: JSON.stringify({ folder_ids: ids }),
           });
           const data = await res.json();

@@ -59,6 +59,10 @@
     // through (see ExtractController::ping/scan/start/progress).
     const DAEMON_URL = "{{ url('/extract/worker') }}";
 
+    function getXsrfToken() {
+      return decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '');
+    }
+
     const workerBadge = document.getElementById('workerBadge');
     const scanBtn = document.getElementById('scanBtn');
     const startBtn = document.getElementById('startBtn');
@@ -188,7 +192,10 @@
       progressLog.innerHTML = '';
 
       try {
-        const res = await fetch(DAEMON_URL + '/start', { method: 'POST' });
+        const res = await fetch(DAEMON_URL + '/start', {
+          method: 'POST',
+          headers: { 'X-XSRF-TOKEN': getXsrfToken() },
+        });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Gagal memulai proses');
       } catch (err) {
