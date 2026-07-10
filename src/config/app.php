@@ -32,8 +32,9 @@ return [
   // 'api_url' => env('API_URL', 'http://192.168.1.1:8080'),
   // 'api_url' => env('API_URL', 'http://192.168.1.133:8181'),
 
-  // Local zip-extract worker daemon — read directly by client-side JS in the
-  // extract page, since the browser (not this server) talks to it.
+  // Local zip-extract worker daemon — the browser never calls this directly
+  // (a phone on this server's LAN may have no route to the daemon's own
+  // laptop). ExtractController proxies every call server-side instead.
   'extract_daemon_url' => env('EXTRACT_DAEMON_URL', 'http://localhost:9099'),
 
   // Local translate worker daemon — same reasoning as extract_daemon_url.

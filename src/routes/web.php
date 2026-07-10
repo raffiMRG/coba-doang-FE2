@@ -43,8 +43,16 @@ Route::middleware('auth.backend')->group(function () {
   Route::delete('/id/{id}', [MangaController::class, 'destroy'])->name('manga.destroy');
   Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
   Route::get('/extract', [ExtractController::class, 'index'])->name('extract');
+  Route::get('/extract/worker/ping', [ExtractController::class, 'ping'])->name('extract.ping');
+  Route::get('/extract/worker/scan', [ExtractController::class, 'scan'])->name('extract.scan');
+  Route::post('/extract/worker/start', [ExtractController::class, 'start'])->name('extract.start');
+  Route::get('/extract/worker/progress', [ExtractController::class, 'progress'])->name('extract.progress');
+
   Route::get('/translate', [TranslateController::class, 'index'])->name('translate');
   Route::post('/translate/{id}/request', [TranslateController::class, 'request'])->name('translate.request');
+  Route::get('/translate/worker/ping', [TranslateController::class, 'ping'])->name('translate.ping');
+  Route::post('/translate/worker/start', [TranslateController::class, 'start'])->name('translate.start');
+  Route::get('/translate/worker/progress', [TranslateController::class, 'progress'])->name('translate.progress');
 
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');

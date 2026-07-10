@@ -9,8 +9,8 @@
     <div class="mb-6 p-5 bg-gray-900 rounded-xl ring-1 ring-white/10 flex items-center justify-between">
       <div>
         <h2 class="text-lg font-semibold text-white">Worker</h2>
-        <p class="text-sm text-gray-400">Daemon lokal yang menjalankan proses extract di laptop kamu.</p>
-        <p id="workerUrl" class="text-xs text-gray-500 font-mono mt-1"></p>
+        <p class="text-sm text-gray-400">Daemon lokal yang menjalankan proses extract di laptop kamu, diproses lewat server ini.</p>
+        <p id="workerUrl" class="text-xs text-gray-500 font-mono mt-1">via server &rarr; {{ config('app.extract_daemon_url') }}</p>
       </div>
       <span id="workerBadge"
         class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-400 border border-gray-700">
@@ -52,13 +52,12 @@
   </div>
 
   <script>
-    // The worker always runs on your laptop, not wherever this page itself
-    // happens to be served from (e.g. a separate home server) — so the
-    // daemon's address can't be derived from window.location.hostname, it
-    // has to be an explicit, configured address for your laptop on the LAN.
-    // Set EXTRACT_DAEMON_URL in .env to your laptop's LAN IP.
-    const DAEMON_URL = "{{ config('app.extract_daemon_url') }}";
-    document.getElementById('workerUrl').textContent = DAEMON_URL;
+    // The worker daemon only runs on your laptop, which a phone on this
+    // server's network can't reach directly — so the browser never talks to
+    // the daemon's LAN address itself. Instead it hits this same-origin
+    // path, and the server (which can reach the laptop) proxies the call
+    // through (see ExtractController::ping/scan/start/progress).
+    const DAEMON_URL = "{{ url('/extract/worker') }}";
 
     const workerBadge = document.getElementById('workerBadge');
     const scanBtn = document.getElementById('scanBtn');
