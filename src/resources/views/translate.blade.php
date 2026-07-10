@@ -40,7 +40,7 @@
                 class="group relative block rounded-xl overflow-hidden bg-gray-900 ring-1 ring-white/10 cursor-pointer transition hover:-translate-y-1 hover:ring-indigo-500/60 has-checked:ring-2 has-checked:ring-indigo-500">
                 <input type="checkbox" value="{{ $item['folder_id'] }}" class="sr-only translate-checkbox">
                 <div class="aspect-3/4 w-full overflow-hidden bg-gray-800">
-                  <img src="{{ thumbnail_url($item['thumbnail']) }}" class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                  <x-thumbnail :src="$item['thumbnail']" :alt="$item['name']" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
                 </div>
                 <div class="absolute inset-x-0 bottom-0 bg-linear-to-t from-gray-950 via-gray-950/80 to-transparent px-3 pt-8 pb-3">
                   <p class="text-sm font-semibold text-white leading-snug line-clamp-2">{{ $item['name'] }}</p>

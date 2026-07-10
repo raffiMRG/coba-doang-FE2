@@ -66,6 +66,8 @@
     let online = false;
     let processing = false;
     let scannedCount = 0;
+    let evtSource = null;
+    let needsReconnect = false; // true only after a genuine connection error, never after a clean "done"
 
     function updateButtons() {
       scanBtn.disabled = !online || processing;
@@ -112,6 +114,63 @@
       updateButtons();
     });
 
+    // /progress now replays the full history of the current/last job as
+    // soon as you connect (backfill), then streams live — so one persistent
+    // connection, opened as soon as the page loads rather than only after
+    // clicking Start, is enough to "resume" showing an in-progress or just-
+    // finished run after a reload, a closed-then-reopened tab, or coming
+    // back from another page.
+    function ensureProgressConnection() {
+      if (evtSource) return;
+
+      // Every new connection gets a full backfill from index 1, even if the
+      // job already finished (so a reload/reopen after completion still
+      // shows the result) — so the log/bar must start clean here too, not
+      // just when the Start button is clicked, or a reconnect would append
+      // the same already-shown history on top of itself.
+      progressLog.innerHTML = '';
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+
+      evtSource = new EventSource(DAEMON_URL + '/progress');
+      needsReconnect = false;
+
+      evtSource.addEventListener('progress', (e) => {
+        const evt = JSON.parse(e.data);
+        processing = true;
+        progressBox.classList.remove('hidden');
+        const pct = (evt.index / evt.total) * 100;
+        progressBar.style.width = `${pct}%`;
+        progressPercent.textContent = `${Math.round(pct)}%`;
+        progressStatus.textContent = `${evt.index} dari ${evt.total} diproses`;
+
+        const li = document.createElement('li');
+        const icon = evt.status === 'success' ? '✅' : '⚠️';
+        li.textContent = `${icon} ${evt.zip_name} — ${evt.message}`;
+        progressLog.appendChild(li);
+        updateButtons();
+      });
+
+      evtSource.addEventListener('done', () => {
+        progressStatus.textContent = 'Selesai.';
+        evtSource.close();
+        evtSource = null;
+        processing = false;
+        scannedCount = 0;
+        zipList.innerHTML = '';
+        updateButtons();
+      });
+
+      evtSource.addEventListener('error', () => {
+        progressStatus.textContent = '⚠️ Terjadi kesalahan koneksi.';
+        evtSource.close();
+        evtSource = null;
+        needsReconnect = true;
+        processing = false;
+        updateButtons();
+      });
+    }
+
     startBtn.addEventListener('click', async () => {
       processing = true;
       updateButtons();
@@ -133,39 +192,19 @@
         return;
       }
 
-      const evtSource = new EventSource(DAEMON_URL + '/progress');
-
-      evtSource.addEventListener('progress', (e) => {
-        const evt = JSON.parse(e.data);
-        const pct = (evt.index / evt.total) * 100;
-        progressBar.style.width = `${pct}%`;
-        progressPercent.textContent = `${Math.round(pct)}%`;
-        progressStatus.textContent = `${evt.index} dari ${evt.total} diproses`;
-
-        const li = document.createElement('li');
-        const icon = evt.status === 'success' ? '✅' : '⚠️';
-        li.textContent = `${icon} ${evt.zip_name} — ${evt.message}`;
-        progressLog.appendChild(li);
-      });
-
-      evtSource.addEventListener('done', () => {
-        progressStatus.textContent = 'Selesai.';
-        evtSource.close();
-        processing = false;
-        scannedCount = 0;
-        zipList.innerHTML = '';
-        updateButtons();
-      });
-
-      evtSource.addEventListener('error', () => {
-        progressStatus.textContent = '⚠️ Terjadi kesalahan koneksi.';
-        evtSource.close();
-        processing = false;
-        updateButtons();
-      });
+      ensureProgressConnection();
     });
 
     ping();
-    setInterval(ping, 5000);
+    ensureProgressConnection();
+    // Reconnect automatically on the next tick only after a real connection
+    // error (needsReconnect) — not unconditionally, since /progress always
+    // backfills the full history of the current/last job on every connect;
+    // reconnecting on a fixed timer even when nothing changed would just
+    // redraw the same already-finished job's log over and over forever.
+    setInterval(() => {
+      ping();
+      if (needsReconnect) ensureProgressConnection();
+    }, 5000);
   </script>
 @endsection

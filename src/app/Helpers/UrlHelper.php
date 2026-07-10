@@ -19,24 +19,3 @@ if (!function_exists('same_origin_url')) {
         return $path ?: $url;
     }
 }
-
-if (!function_exists('thumbnail_url')) {
-    /**
-     * Outside production (local dev, where SRC_DIR/DST_DIR usually aren't
-     * the real mounted data), always return a fixed placeholder instead of
-     * a same-origin URL that would 404. In production, resolve the real
-     * thumbnail via same_origin_url() — falling back to the placeholder too
-     * if $url is empty (some catalog entries bulk-imported from an old
-     * backup have no thumbnail at all).
-     */
-    function thumbnail_url(?string $url): string
-    {
-        $placeholder = 'https://i.imgur.com/TNOs1Xx.png';
-
-        if (!app()->environment('production') || !$url) {
-            return $placeholder;
-        }
-
-        return same_origin_url($url) ?? $placeholder;
-    }
-}
