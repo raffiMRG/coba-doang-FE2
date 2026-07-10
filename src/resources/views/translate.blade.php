@@ -49,23 +49,34 @@
             @endforeach
           </div>
         </div>
-
-        <div id="progressBox" class="hidden p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
-          <div class="flex items-center justify-between mb-2">
-            <span id="progressStatus" class="text-sm text-gray-400">Memulai...</span>
-            <span id="progressPercent" class="text-indigo-400 font-semibold text-xs">0%</span>
-          </div>
-          <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden mb-3">
-            <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300 ease-out" style="width: 0%"></div>
-          </div>
-          <ul id="progressLog" class="text-xs text-gray-500 space-y-1"></ul>
-        </div>
       @endif
+
+      {{-- Always rendered (not gated behind count($items) > 0): items being
+      actively translated drop out of $items (GET /translate/pending only
+      returns status='pending'), so a reload mid-batch can leave the queue
+      looking empty even while a job is still running — this needs to exist
+      in the DOM regardless so the resumed progress can attach to it. --}}
+      <div id="progressBox" class="hidden p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
+        <div class="flex items-center justify-between mb-2">
+          <span id="progressStatus" class="text-sm text-gray-400">Memulai...</span>
+          <span id="progressPercent" class="text-indigo-400 font-semibold text-xs">0%</span>
+        </div>
+        <div class="w-full h-2 bg-gray-800 rounded-full overflow-hidden mb-3">
+          <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300 ease-out" style="width: 0%"></div>
+        </div>
+        <ul id="progressLog" class="text-xs text-gray-500 space-y-1"></ul>
+      </div>
     @endif
   </div>
 
   <script>
-    const DAEMON_URL = "{{ config('app.translate_daemon_url') }}";
+    // Derive the daemon's host from whatever host loaded this page, not a
+    // fixed "localhost" — the worker only runs on your laptop, so opening
+    // this page from a phone on the same LAN must call the laptop's LAN IP,
+    // not "localhost" (which from the phone's browser means the phone
+    // itself). Port still comes from config/.env in case it's ever changed.
+    const DAEMON_PORT = {{ parse_url(config('app.translate_daemon_url'), PHP_URL_PORT) ?? 9101 }};
+    const DAEMON_URL = `http://${window.location.hostname}:${DAEMON_PORT}`;
 
     const workerBadge = document.getElementById('workerBadge');
     const startBtn = document.getElementById('startBtn');
@@ -77,6 +88,8 @@
 
     let online = false;
     let processing = false;
+    let evtSource = null;
+    let needsReconnect = false; // true only after a genuine connection error, never after a clean "done"
 
     function checkedIds() {
       return Array.from(document.querySelectorAll('.translate-checkbox:checked')).map(cb => parseInt(cb.value));
@@ -102,6 +115,60 @@
     }
 
     document.querySelectorAll('.translate-checkbox').forEach(cb => cb.addEventListener('change', updateButtons));
+
+    // /progress replays the full history of the current/last job as soon as
+    // you connect (backfill), then streams live — so one persistent
+    // connection, opened as soon as the page loads rather than only after
+    // clicking Start, is enough to "resume" showing an in-progress or just-
+    // finished run after a reload, a closed-then-reopened tab, or coming
+    // back from another page.
+    function ensureProgressConnection() {
+      if (evtSource) return;
+
+      // Every new connection gets a full backfill from index 1, even if the
+      // job already finished — so the log/bar must start clean here too,
+      // not just when the Start button is clicked, or a reconnect would
+      // append the same already-shown history on top of itself.
+      progressLog.innerHTML = '';
+      progressBar.style.width = '0%';
+      progressPercent.textContent = '0%';
+
+      evtSource = new EventSource(DAEMON_URL + '/progress');
+      needsReconnect = false;
+
+      evtSource.addEventListener('progress', (e) => {
+        const evt = JSON.parse(e.data);
+        processing = true;
+        progressBox.classList.remove('hidden');
+        const pct = (evt.index / evt.total) * 100;
+        progressBar.style.width = `${pct}%`;
+        progressPercent.textContent = `${Math.round(pct)}%`;
+        progressStatus.textContent = `${evt.index} dari ${evt.total} diproses`;
+
+        const li = document.createElement('li');
+        const icon = evt.status === 'success' ? '✅' : '⚠️';
+        li.textContent = `${icon} ${evt.name || evt.folder_id} — ${evt.message}`;
+        progressLog.appendChild(li);
+        updateButtons();
+      });
+
+      evtSource.addEventListener('done', () => {
+        progressStatus.textContent = 'Selesai. Reload halaman untuk melihat antrian terbaru.';
+        evtSource.close();
+        evtSource = null;
+        processing = false;
+        updateButtons();
+      });
+
+      evtSource.addEventListener('error', () => {
+        progressStatus.textContent = '⚠️ Terjadi kesalahan koneksi.';
+        evtSource.close();
+        evtSource = null;
+        needsReconnect = true;
+        processing = false;
+        updateButtons();
+      });
+    }
 
     if (startBtn) {
       startBtn.addEventListener('click', async () => {
@@ -132,38 +199,20 @@
           return;
         }
 
-        const evtSource = new EventSource(DAEMON_URL + '/progress');
-
-        evtSource.addEventListener('progress', (e) => {
-          const evt = JSON.parse(e.data);
-          const pct = (evt.index / evt.total) * 100;
-          progressBar.style.width = `${pct}%`;
-          progressPercent.textContent = `${Math.round(pct)}%`;
-          progressStatus.textContent = `${evt.index} dari ${evt.total} diproses`;
-
-          const li = document.createElement('li');
-          const icon = evt.status === 'success' ? '✅' : '⚠️';
-          li.textContent = `${icon} ${evt.name || evt.folder_id} — ${evt.message}`;
-          progressLog.appendChild(li);
-        });
-
-        evtSource.addEventListener('done', () => {
-          progressStatus.textContent = 'Selesai. Reload halaman untuk melihat antrian terbaru.';
-          evtSource.close();
-          processing = false;
-          updateButtons();
-        });
-
-        evtSource.addEventListener('error', () => {
-          progressStatus.textContent = '⚠️ Terjadi kesalahan koneksi.';
-          evtSource.close();
-          processing = false;
-          updateButtons();
-        });
+        ensureProgressConnection();
       });
     }
 
     ping();
-    setInterval(ping, 5000);
+    ensureProgressConnection();
+    // Reconnect automatically on the next tick only after a real connection
+    // error (needsReconnect) — not unconditionally, since /progress always
+    // backfills the full history of the current/last job on every connect;
+    // reconnecting on a fixed timer even when nothing changed would just
+    // redraw the same already-finished job's log over and over forever.
+    setInterval(() => {
+      ping();
+      if (needsReconnect) ensureProgressConnection();
+    }, 5000);
   </script>
 @endsection

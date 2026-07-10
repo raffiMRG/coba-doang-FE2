@@ -51,7 +51,13 @@
   </div>
 
   <script>
-    const DAEMON_URL = "{{ config('app.extract_daemon_url') }}";
+    // Derive the daemon's host from whatever host loaded this page, not a
+    // fixed "localhost" — the worker only runs on your laptop, so opening
+    // this page from a phone on the same LAN must call the laptop's LAN IP,
+    // not "localhost" (which from the phone's browser means the phone
+    // itself). Port still comes from config/.env in case it's ever changed.
+    const DAEMON_PORT = {{ parse_url(config('app.extract_daemon_url'), PHP_URL_PORT) ?? 9099 }};
+    const DAEMON_URL = `http://${window.location.hostname}:${DAEMON_PORT}`;
 
     const workerBadge = document.getElementById('workerBadge');
     const scanBtn = document.getElementById('scanBtn');
