@@ -62,8 +62,8 @@
                             <input type="checkbox" id="{{ $folder['id'] }}-option" value="{{ $folder['id'] }}"
                                 class="sr-only">
                             <div class="aspect-3/4 w-full overflow-hidden bg-gray-800">
-                                <img src="{{ thumbnail_url($folder['thumbnail']) }}"
-                                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105">
+                                <x-thumbnail :src="$folder['thumbnail']" :alt="$folder['name']"
+                                    class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
                             </div>
                             <div
                                 class="absolute inset-x-0 bottom-0 bg-linear-to-t from-gray-950 via-gray-950/80 to-transparent px-3 pt-8 pb-3">

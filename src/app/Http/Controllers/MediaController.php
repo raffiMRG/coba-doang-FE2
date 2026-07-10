@@ -28,13 +28,27 @@ class MediaController extends Controller
 
     private function stream(string $dir, string $path): StreamedResponse
     {
-        if (str_contains($path, '..')) {
-            abort(400);
+        // Guard against path traversal by checking whole path segments, not
+        // just "does the string contain '..' anywhere" — some real folder
+        // names legitimately contain a literal "..." (e.g. a truncated
+        // release title ending in an ellipsis), which a bare substring check
+        // would wrongly reject even though no segment is actually "..".
+        foreach (explode('/', $path) as $segment) {
+            if ($segment === '..' || $segment === '.') {
+                abort(400);
+            }
         }
+
+        // Http::get() runs the URL through Guzzle's RFC 6570 UriTemplate::expand()
+        // unconditionally (see Illuminate\Http\Client\PendingRequest::buildUrl()).
+        // Folder names containing literal `{`/`}` (e.g. a "{groupname}" scan-tag)
+        // get misread as unresolved template placeholders and silently dropped,
+        // so percent-encode them first to keep them opaque to that expansion.
+        $escapedPath = str_replace(['{', '}'], ['%7B', '%7D'], $path);
 
         $upstream = Http::withOptions(['stream' => true])
             ->baseUrl(rtrim(config('app.api_url'), '/'))
-            ->get("{$dir}/{$path}");
+            ->get("{$dir}/{$escapedPath}");
 
         if ($upstream->failed()) {
             abort($upstream->status());

@@ -59,7 +59,11 @@
 
     <div class="max-w-3xl mx-auto flex flex-col">
         @foreach ($manga['page'] as $page)
-            <img src="{{ thumbnail_url($manga['thumbnail'] ? rtrim(dirname($manga['thumbnail']), '/') . '/' . $page : null) }}" alt="Page {{ $loop->iteration }}" class="w-full h-auto" loading="lazy">
+            <x-thumbnail
+                :src="$manga['thumbnail'] ? rtrim(dirname($manga['thumbnail']), '/') . '/' . $page : null"
+                :alt="'Page ' . $loop->iteration"
+                class="w-full h-auto"
+                loading="lazy" />
         @endforeach
     </div>
 
