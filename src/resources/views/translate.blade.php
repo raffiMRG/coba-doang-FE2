@@ -43,7 +43,7 @@
               <label
                 class="group relative block rounded-xl overflow-hidden bg-gray-900 ring-1 ring-white/10 cursor-pointer transition hover:-translate-y-1 hover:ring-indigo-500/60 has-checked:ring-2 has-checked:ring-indigo-500">
                 <input type="checkbox" value="{{ $item['folder_id'] }}" class="sr-only translate-checkbox">
-                <button type="button" class="remove-translate-btn absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-black/50 text-gray-300 hover:text-red-400 hover:bg-black/70 transition opacity-0 group-hover:opacity-100"
+                <button type="button" class="remove-translate-btn absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-black/50 text-gray-300 hover:text-red-400 hover:bg-black/70 transition"
                   title="Keluarkan dari antrian translate" data-folder-id="{{ $item['folder_id'] }}">
                   <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 6h12M8 6V4.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V6m-7 0 .7 9.1a1.5 1.5 0 0 0 1.5 1.4h5.6a1.5 1.5 0 0 0 1.5-1.4L15 6"
