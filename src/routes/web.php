@@ -50,9 +50,12 @@ Route::middleware('auth.backend')->group(function () {
 
   Route::get('/translate', [TranslateController::class, 'index'])->name('translate');
   Route::post('/translate/{id}/request', [TranslateController::class, 'request'])->name('translate.request');
+  Route::delete('/translate/{id}', [TranslateController::class, 'cancel'])->name('translate.cancel');
   Route::get('/translate/worker/ping', [TranslateController::class, 'ping'])->name('translate.ping');
   Route::post('/translate/worker/start', [TranslateController::class, 'start'])->name('translate.start');
   Route::get('/translate/worker/progress', [TranslateController::class, 'progress'])->name('translate.progress');
+  Route::get('/translate/history', [TranslateController::class, 'history'])->name('translate.history');
+  Route::get('/translate/history/{jobId}', [TranslateController::class, 'historyShow'])->name('translate.history.show');
 
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class TranslateController extends Controller
@@ -43,6 +44,17 @@ class TranslateController extends Controller
   }
 
   /**
+   * Same-origin relay for the "keluarkan dari antrian" button on the
+   * translate queue page — same reason as request() above.
+   */
+  public function cancel(string $id)
+  {
+    $response = $this->backend()->delete("/translate/{$id}");
+
+    return response()->json($response->json(), $response->status());
+  }
+
+  /**
    * The translate worker daemon only runs on the user's own laptop, which a
    * phone on the server's network can't reach directly — so this server
    * proxies every daemon call (translate.blade.php now calls this server,
@@ -66,5 +78,36 @@ class TranslateController extends Controller
   public function progress()
   {
     return $this->proxyDaemonSse(config('app.translate_daemon_url'), '/progress');
+  }
+
+  /**
+   * Server-rendered (not client-JS proxyDaemonJson) since this is a normal
+   * page load, not a fetch() call from translate.blade.php's inline script —
+   * same pattern as index() fetching from the Go backend.
+   */
+  public function history()
+  {
+    $response = Http::baseUrl(rtrim(config('app.translate_daemon_url'), '/'))->timeout(10)->get('/history');
+
+    return view('translate.history', [
+      'jobs' => $response->successful() ? ($response->json('jobs') ?? []) : [],
+      'error' => $response->successful() ? null : 'Gagal mengambil riwayat dari worker.',
+    ]);
+  }
+
+  public function historyShow($jobId)
+  {
+    $response = Http::baseUrl(rtrim(config('app.translate_daemon_url'), '/'))->timeout(10)->get("/history/{$jobId}");
+
+    if ($response->status() === 404) {
+      abort(404, 'Riwayat job tidak ditemukan.');
+    }
+
+    $data = $response->json();
+
+    return view('translate.history-show', [
+      'job' => $data['job'] ?? null,
+      'items' => $data['items'] ?? [],
+    ]);
   }
 }

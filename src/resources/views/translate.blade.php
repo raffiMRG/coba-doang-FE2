@@ -4,7 +4,10 @@
 
 @section('content')
   <div class="max-w-screen-xl mx-auto">
-    <h1 class="mb-6 text-2xl font-bold text-white tracking-tight">Translate</h1>
+    <div class="mb-6 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-white tracking-tight">Translate</h1>
+      <a href="{{ route('translate.history') }}" class="text-sm text-indigo-400 hover:underline">Riwayat &rarr;</a>
+    </div>
 
     @if ($error)
       <div class="flex items-center gap-3 p-4 rounded-lg bg-red-950/50 border border-red-900 text-red-300">
@@ -40,6 +43,13 @@
               <label
                 class="group relative block rounded-xl overflow-hidden bg-gray-900 ring-1 ring-white/10 cursor-pointer transition hover:-translate-y-1 hover:ring-indigo-500/60 has-checked:ring-2 has-checked:ring-indigo-500">
                 <input type="checkbox" value="{{ $item['folder_id'] }}" class="sr-only translate-checkbox">
+                <button type="button" class="remove-translate-btn absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-black/50 text-gray-300 hover:text-red-400 hover:bg-black/70 transition opacity-0 group-hover:opacity-100"
+                  title="Keluarkan dari antrian translate" data-folder-id="{{ $item['folder_id'] }}">
+                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 6h12M8 6V4.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V6m-7 0 .7 9.1a1.5 1.5 0 0 0 1.5 1.4h5.6a1.5 1.5 0 0 0 1.5-1.4L15 6"
+                      stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
                 <div class="aspect-3/4 w-full overflow-hidden bg-gray-800">
                   <x-thumbnail :src="$item['thumbnail']" :alt="$item['name']" class="w-full h-full object-cover transition duration-300 group-hover:scale-105" />
                 </div>
@@ -119,6 +129,32 @@
     }
 
     document.querySelectorAll('.translate-checkbox').forEach(cb => cb.addEventListener('change', updateButtons));
+
+    // preventDefault on the click is what stops the enclosing <label> from
+    // also toggling its checkbox — labels forward any unprevented click on
+    // a descendant into a synthetic click on their associated control.
+    document.querySelectorAll('.remove-translate-btn').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!confirm('Keluarkan manga ini dari antrian translate?')) return;
+
+        const folderId = btn.dataset.folderId;
+        try {
+          const res = await fetch(`/translate/${folderId}`, {
+            method: 'DELETE',
+            headers: { 'X-XSRF-TOKEN': getXsrfToken() },
+          });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.Message || 'Gagal mengeluarkan dari antrian');
+
+          btn.closest('label').remove();
+          updateButtons();
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      });
+    });
 
     // /progress replays the full history of the current/last job as soon as
     // you connect (backfill), then streams live — so one persistent
