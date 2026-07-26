@@ -100,6 +100,10 @@
                         class="block py-2 px-3 rounded-lg transition {{ $navLink('translate') }}">Translate</a>
                 </li>
                 <li>
+                    <a href="/bug-reports"
+                        class="block py-2 px-3 rounded-lg transition {{ $navLink('bug-reports') }}">Bug Reports</a>
+                </li>
+                <li>
                     <form method="POST" action="/logout">
                         @csrf
                         <button type="submit"

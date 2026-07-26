@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\BugReportController;
 use App\Http\Controllers\ExtractController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
@@ -56,6 +57,10 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/translate/worker/progress', [TranslateController::class, 'progress'])->name('translate.progress');
   Route::get('/translate/history', [TranslateController::class, 'history'])->name('translate.history');
   Route::get('/translate/history/{jobId}', [TranslateController::class, 'historyShow'])->name('translate.history.show');
+
+  Route::get('/bug-reports', [BugReportController::class, 'index'])->name('bug-reports');
+  Route::post('/bug-reports', [BugReportController::class, 'store'])->name('bug-reports.store');
+  Route::patch('/bug-reports/{id}/status', [BugReportController::class, 'updateStatus'])->name('bug-reports.update-status');
 
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');

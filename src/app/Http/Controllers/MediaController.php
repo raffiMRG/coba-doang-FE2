@@ -56,13 +56,28 @@ class MediaController extends Controller
 
         $body = $upstream->toPsrResponse()->getBody();
 
+        // Forward the upstream Content-Length so a transfer that gets cut
+        // short (upstream hiccup, connection reset mid-stream, etc.) is a
+        // declared-length mismatch the browser can detect and treat as a
+        // failed load. Without this, a truncated body still looks like a
+        // clean, complete chunked response — the browser has no way to
+        // tell it apart from a real file, so it gets cached as "correct"
+        // under the Cache-Control below and keeps serving that broken
+        // (sometimes 0-byte) copy for a full day even after the real file
+        // is confirmed fine on disk (observed in production: translated
+        // manga pages showing as broken images while the source files were
+        // completely intact — the browser's disk cache had a poisoned,
+        // empty response cached from an earlier hiccup).
+        $contentLength = $upstream->header('Content-Length');
+
         return new StreamedResponse(function () use ($body) {
             while (!$body->eof()) {
                 echo $body->read(8192);
             }
-        }, 200, [
+        }, 200, array_filter([
             'Content-Type' => $upstream->header('Content-Type'),
+            'Content-Length' => $contentLength !== '' ? $contentLength : null,
             'Cache-Control' => 'public, max-age=86400',
-        ]);
+        ]));
     }
 }

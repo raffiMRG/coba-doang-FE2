@@ -12,8 +12,8 @@
     <x-navbar></x-navbar>
 
     <div class="bg-gray-950/90 backdrop-blur border-b border-gray-800">
-        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <h1 id="mangaTitle" class="min-w-0 flex-1 truncate text-sm font-semibold text-white">{{ $manga['name'] }}</h1>
+        <div class="w-full sm:w-[80vw] mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+            <h1 id="mangaTitle" class="min-w-0 sm:flex-1 truncate text-sm font-semibold text-white">{{ $manga['name'] }}</h1>
             <div class="flex items-center gap-1.5 shrink-0">
                 <span class="text-xs text-gray-500 mr-1">{{ count($manga['page']) }} pages</span>
 
@@ -35,6 +35,14 @@
                     class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12.913 17H20.087M12.913 17L11 21M12.913 17L15.7783 11.009C16.0092 10.5263 16.1246 10.2849 16.2826 10.2086C16.4199 10.1423 16.5801 10.1423 16.7174 10.2086C16.8754 10.2849 16.9908 10.5263 17.2217 11.009L20.087 17M20.087 17L22 21M2 5H8M8 5H11.5M8 5V3M11.5 5H14M11.5 5C11.0039 7.95729 9.85259 10.6362 8.16555 12.8844M10 14C9.38747 13.7248 8.76265 13.3421 8.16555 12.8844M8.16555 12.8844C6.81302 11.8478 5.60276 10.4266 5 9M8.16555 12.8844C6.56086 15.0229 4.47143 16.7718 2 18"
+                            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+
+                <button id="reportBugBtn" type="button" title="Report Bug"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-gray-800 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9v3.5M12 16h.01M5 8l1.5-2M19 8l-1.5-2M9 3.5c.6-.6 1.7-1 3-1s2.4.4 3 1M5.5 12H3M21 12h-2.5M5.5 16.5 4 18M18.5 16.5 20 18M8 9h8a3 3 0 0 1 3 3v2a5 5 0 0 1-5 5h-4a5 5 0 0 1-5-5v-2a3 3 0 0 1 3-3Z"
                             stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
@@ -106,6 +114,22 @@
         </div>
     </div>
 
+    <!-- Report Bug Modal -->
+    <div id="reportBugModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-gray-900 rounded-xl ring-1 ring-white/10 w-full max-w-sm p-5">
+            <h2 class="text-lg font-semibold text-white mb-2">Report Bug</h2>
+            <p class="text-sm text-gray-400 mb-4">Ceritakan bug atau gambar yang rusak pada manga ini (mis. nomor halaman, gambar blank/pecah, dll).</p>
+            <textarea id="reportBugInput" rows="4" placeholder="Deskripsi bug..."
+                class="w-full mb-4 p-2.5 text-sm text-gray-100 border border-gray-700 rounded-lg bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"></textarea>
+            <div class="flex justify-end gap-3">
+                <button type="button" id="reportBugCancelBtn"
+                    class="text-gray-300 bg-gray-800 hover:bg-gray-700 font-medium rounded-lg text-sm px-4 py-2 transition">Batal</button>
+                <button type="button" id="reportBugConfirmBtn"
+                    class="text-white bg-indigo-600 hover:bg-indigo-500 font-medium rounded-lg text-sm px-4 py-2 transition">Kirim</button>
+            </div>
+        </div>
+    </div>
+
     @include('components.footer')
     <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
     <script>
@@ -168,6 +192,34 @@
                 document.getElementById('mangaTitle').textContent = result.Data.name;
                 document.title = result.Data.name;
                 editModal.classList.add('hidden');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        });
+
+        const reportBugModal = document.getElementById('reportBugModal');
+        const reportBugInput = document.getElementById('reportBugInput');
+        document.getElementById('reportBugBtn').addEventListener('click', () => reportBugModal.classList.remove('hidden'));
+        document.getElementById('reportBugCancelBtn').addEventListener('click', () => reportBugModal.classList.add('hidden'));
+        document.getElementById('reportBugConfirmBtn').addEventListener('click', async () => {
+            const description = reportBugInput.value.trim();
+            if (!description) return;
+
+            try {
+                const res = await fetch('/bug-reports', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': getXsrfToken()
+                    },
+                    body: JSON.stringify({ folder_id: mangaId, description })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.Message || 'Gagal mengirim laporan');
+
+                reportBugInput.value = '';
+                reportBugModal.classList.add('hidden');
+                alert('Laporan terkirim, terima kasih!');
             } catch (err) {
                 alert('Error: ' + err.message);
             }
