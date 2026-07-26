@@ -16,6 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.backend' => \App\Http\Middleware\EnsureBackendAuthenticated::class,
         ]);
 
+        // Pages here are rendered from live backend data with no client-side
+        // revalidation — see SetNoCacheHeaders for why this is needed.
+        $middleware->web(append: [
+            \App\Http\Middleware\SetNoCacheHeaders::class,
+        ]);
+
         // nginx is a local, trusted process (not a third-party proxy) that
         // always sets X-Forwarded-Proto/Port itself (see nginx map blocks),
         // so trusting it for every request lets Laravel generate correct
