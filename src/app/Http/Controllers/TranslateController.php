@@ -81,6 +81,16 @@ class TranslateController extends Controller
   }
 
   /**
+   * Live tail of the currently-processing folder's subprocess output —
+   * same relay pattern as progress(), used by history-show.blade.php while
+   * a job is still in flight.
+   */
+  public function log()
+  {
+    return $this->proxyDaemonSse(config('app.translate_daemon_url'), '/log');
+  }
+
+  /**
    * Server-rendered (not client-JS proxyDaemonJson) since this is a normal
    * page load, not a fetch() call from translate.blade.php's inline script —
    * same pattern as index() fetching from the Go backend.

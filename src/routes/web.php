@@ -55,6 +55,7 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/translate/worker/ping', [TranslateController::class, 'ping'])->name('translate.ping');
   Route::post('/translate/worker/start', [TranslateController::class, 'start'])->name('translate.start');
   Route::get('/translate/worker/progress', [TranslateController::class, 'progress'])->name('translate.progress');
+  Route::get('/translate/worker/log', [TranslateController::class, 'log'])->name('translate.log');
   Route::get('/translate/history', [TranslateController::class, 'history'])->name('translate.history');
   Route::get('/translate/history/{jobId}', [TranslateController::class, 'historyShow'])->name('translate.history.show');
 
