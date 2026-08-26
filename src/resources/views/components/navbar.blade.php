@@ -104,6 +104,10 @@
                         class="block py-2 px-3 rounded-lg transition {{ $navLink('bug-reports') }}">Bug Reports</a>
                 </li>
                 <li>
+                    <a href="/duplicates"
+                        class="block py-2 px-3 rounded-lg transition {{ $navLink('duplicates*') }}">Duplicates</a>
+                </li>
+                <li>
                     <form method="POST" action="/logout">
                         @csrf
                         <button type="submit"

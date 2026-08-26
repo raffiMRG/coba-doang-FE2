@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\BookmarkController;
 use App\Http\Controllers\BugReportController;
+use App\Http\Controllers\DuplicateController;
 use App\Http\Controllers\ExtractController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
@@ -62,6 +63,11 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/bug-reports', [BugReportController::class, 'index'])->name('bug-reports');
   Route::post('/bug-reports', [BugReportController::class, 'store'])->name('bug-reports.store');
   Route::patch('/bug-reports/{id}/status', [BugReportController::class, 'updateStatus'])->name('bug-reports.update-status');
+
+  Route::get('/duplicates', [DuplicateController::class, 'index'])->name('duplicates');
+  Route::get('/duplicates/{id}', [DuplicateController::class, 'show'])->name('duplicates.show');
+  Route::post('/duplicates/{id}/resolve', [DuplicateController::class, 'resolve'])->name('duplicates.resolve');
+  Route::post('/duplicates/backfill', [DuplicateController::class, 'backfill'])->name('duplicates.backfill');
 
   Route::get('/backup', [BackupController::class, 'index'])->name('backup');
   Route::get('/backup/export', [BackupController::class, 'export'])->name('backup.export');
