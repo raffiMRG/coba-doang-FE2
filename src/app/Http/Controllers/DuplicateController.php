@@ -33,7 +33,11 @@ class DuplicateController extends Controller
 
   public function show(string $id)
   {
-    $response = $this->backend()->get("/duplicates/{$id}/compare");
+    // Longer timeout than the default 30s: /compare hashes every matching
+    // page's content to compute the diff (added/removed/changed/unchanged),
+    // which on slow/network storage can take longer than Guzzle's default
+    // for candidates with many matching pages.
+    $response = $this->backend()->timeout(90)->get("/duplicates/{$id}/compare");
 
     if ($response->status() === 404) {
       abort(404, 'Kandidat duplikat tidak ditemukan.');
