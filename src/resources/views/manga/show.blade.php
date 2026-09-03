@@ -67,11 +67,13 @@
 
     <div class="max-w-3xl mx-auto flex flex-col">
         @foreach ($manga['page'] as $page)
-            <x-thumbnail
-                :src="$manga['thumbnail'] ? rtrim(dirname($manga['thumbnail']), '/') . '/' . $page : null"
-                :alt="'Page ' . $loop->iteration"
-                class="w-full h-auto"
-                loading="lazy" />
+            <div class="aspect-[2/3] w-full overflow-hidden bg-gray-950">
+                <x-thumbnail
+                    :src="$manga['thumbnail'] ? rtrim(dirname($manga['thumbnail']), '/') . '/' . $page : null"
+                    :alt="'Page ' . $loop->iteration"
+                    class="w-full h-full object-contain"
+                    loading="lazy" />
+            </div>
         @endforeach
     </div>
 

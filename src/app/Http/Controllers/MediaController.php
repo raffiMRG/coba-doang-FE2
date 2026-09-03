@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -46,9 +47,15 @@ class MediaController extends Controller
         // so percent-encode them first to keep them opaque to that expansion.
         $escapedPath = str_replace(['{', '}'], ['%7B', '%7D'], $path);
 
-        $upstream = Http::withOptions(['stream' => true])
-            ->baseUrl(rtrim(config('app.api_url'), '/'))
-            ->get("{$dir}/{$escapedPath}");
+        try {
+            $upstream = Http::withOptions(['stream' => true])
+                ->baseUrl(rtrim(config('app.api_url'), '/'))
+                ->connectTimeout(5)
+                ->timeout(30)
+                ->get("{$dir}/{$escapedPath}");
+        } catch (ConnectionException $e) {
+            abort(504);
+        }
 
         if ($upstream->failed()) {
             abort($upstream->status());

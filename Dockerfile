@@ -28,6 +28,7 @@ FROM php:8.3-fpm
 # Salin entrypoint.sh ke container
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+COPY docker/fpm-pool.conf /usr/local/etc/php-fpm.d/zz-pool.conf
 
 
 # Beri permission executable
