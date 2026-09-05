@@ -7,9 +7,9 @@
 
 @if (!app()->environment('production') && $real)
     <div class="relative">
-        <img src="{{ $real }}" alt="{{ $alt }}" class="{{ $class }}" loading="{{ $loading }}" />
+        <img src="{{ $real }}" alt="{{ $alt }}" class="{{ $class }}" loading="{{ $loading }}" data-real-image />
         <img src="{{ $placeholder }}" alt="{{ $alt }}" class="absolute inset-0 w-full h-full object-cover opacity-100" loading="{{ $loading }}" />
     </div>
 @else
-    <img src="{{ $real ?? $placeholder }}" alt="{{ $alt }}" class="{{ $class }}" loading="{{ $loading }}" />
+    <img src="{{ $real ?? $placeholder }}" alt="{{ $alt }}" class="{{ $class }}" loading="{{ $loading }}" data-real-image />
 @endif

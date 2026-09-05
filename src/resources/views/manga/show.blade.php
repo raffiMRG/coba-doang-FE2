@@ -65,9 +65,9 @@
         </div>
     </div>
 
-    <div class="max-w-3xl mx-auto flex flex-col">
+    <div id="readerPages" class="max-w-3xl mx-auto flex flex-col">
         @foreach ($manga['page'] as $page)
-            <div class="aspect-[2/3] w-full overflow-hidden bg-gray-950">
+            <div class="reader-page aspect-[2/3] w-full overflow-hidden bg-gray-950">
                 <x-thumbnail
                     :src="$manga['thumbnail'] ? rtrim(dirname($manga['thumbnail']), '/') . '/' . $page : null"
                     :alt="'Page ' . $loop->iteration"
@@ -76,6 +76,25 @@
             </div>
         @endforeach
     </div>
+
+    <script>
+        document.querySelectorAll('#readerPages .reader-page img[data-real-image]').forEach((img) => {
+            const applyNaturalAspectRatio = () => {
+                if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+                    const wrapper = img.closest('.reader-page');
+                    if (wrapper) {
+                        wrapper.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+                    }
+                }
+            };
+
+            if (img.complete) {
+                applyNaturalAspectRatio();
+            } else {
+                img.addEventListener('load', applyNaturalAspectRatio, { once: true });
+            }
+        });
+    </script>
 
     <!-- Edit Modal -->
     <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
