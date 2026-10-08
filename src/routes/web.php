@@ -38,7 +38,9 @@ Route::middleware('auth.backend')->group(function () {
   Route::post('/bookmarks/toggle', [BookmarkController::class, 'toggle'])->name('bookmarks.toggle');
   Route::get('/status', [FolderController::class, 'index'])->name('status');
   Route::post('/status/move', [FolderController::class, 'move'])->name('status.move');
-  Route::get('/status/progress/{taskId}', [FolderController::class, 'progress'])->name('status.progress');
+  // Only reachable as nginx's auth_request subrequest for /status/events
+  // (nginx marks the location `internal`); see nginx/default.conf.
+  Route::get('/internal/sse-auth', [FolderController::class, 'sseAuth']);
   Route::get('/search', [SearchController::class, 'index'])->name('search');
   Route::get('/id/{id}', [MangaController::class, 'show']);
   Route::patch('/id/{id}', [MangaController::class, 'update'])->name('manga.update');

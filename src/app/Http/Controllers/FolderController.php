@@ -53,32 +53,15 @@ class FolderController extends Controller
   }
 
   /**
-   * Same-origin relay for the SSE progress stream in main.blade.php.
-   * EventSource can't send an Authorization header at all, so the browser
-   * can't hit the backend's protected /folders/progress/:taskID directly —
-   * stream it through here instead, forwarding chunks as they arrive.
+   * nginx auth_request target for the global /status/events SSE stream.
+   * Reaching here means auth.backend accepted the session (refreshing the
+   * access token if needed); nginx copies X-Backend-Token into the
+   * Authorization header of its proxied request to the Go backend and never
+   * forwards it to the browser. The stream itself bypasses PHP entirely, so
+   * an open /status tab doesn't hold a PHP-FPM worker.
    */
-  public function progress(string $taskId)
+  public function sseAuth()
   {
-    $upstream = $this->backend()
-      ->withOptions(['stream' => true])
-      ->timeout(0)
-      ->get("/folders/progress/{$taskId}");
-
-    return response()->stream(function () use ($upstream) {
-      $body = $upstream->toPsrResponse()->getBody();
-      while (!$body->eof()) {
-        echo $body->read(1024);
-        if (ob_get_level() > 0) {
-          ob_flush();
-        }
-        flush();
-      }
-    }, 200, [
-      'Content-Type' => 'text/event-stream',
-      'Cache-Control' => 'no-cache',
-      'X-Accel-Buffering' => 'no',
-      'Connection' => 'keep-alive',
-    ]);
+    return response()->noContent()->header('X-Backend-Token', session('access_token'));
   }
 }

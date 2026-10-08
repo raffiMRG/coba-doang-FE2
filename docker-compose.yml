@@ -24,7 +24,12 @@ services:
       - "8000:80"
     volumes:
       - ./src:/var/www
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      # Mounted as a template: the nginx image runs envsubst on it at start
+      # (only for defined env vars, so nginx's own $vars are left alone).
+      - ./nginx/default.conf:/etc/nginx/templates/default.conf.template
+    # Same file Laravel reads, so nginx proxies /status/events to the same
+    # backend Laravel calls (API_BASEURL).
+    env_file: ./src/.env
     depends_on:
       - app
     networks:
