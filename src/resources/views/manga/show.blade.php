@@ -54,6 +54,13 @@
                             stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
+                <button id="repairThumbBtn" type="button" title="Perbaiki thumbnail"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition disabled:opacity-50">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 11a8 8 0 0 0-14.9-3.9M4 4v3.5h3.5M4 13a8 8 0 0 0 14.9 3.9M20 20v-3.5h-3.5"
+                            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
                 <button id="deleteBtn" type="button" title="Delete"
                     class="p-1.5 rounded-lg text-gray-400 hover:text-red-400 hover:bg-gray-800 transition">
                     <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -215,6 +222,41 @@
                 editModal.classList.add('hidden');
             } catch (err) {
                 alert('Error: ' + err.message);
+            }
+        });
+
+        // Recomputes the stored thumbnail URL from the folder on disk (first
+        // page, same order as this reader). The reader's page URLs are built
+        // from the thumbnail's folder, so a fix needs a reload to show.
+        const repairThumbBtn = document.getElementById('repairThumbBtn');
+        repairThumbBtn.addEventListener('click', async () => {
+            const icon = repairThumbBtn.querySelector('svg');
+            repairThumbBtn.disabled = true;
+            icon.classList.add('animate-spin');
+            try {
+                const res = await fetch(`/id/${mangaId}/thumbnail`, {
+                    method: 'POST',
+                    headers: { 'X-XSRF-TOKEN': getXsrfToken() },
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.Message || 'Gagal memperbaiki thumbnail');
+
+                if (result.Data.status === 'fixed') {
+                    location.reload();
+                    return;
+                }
+                // Already correct: brief green tick on the icon, no dialog.
+                repairThumbBtn.classList.add('text-green-400');
+                repairThumbBtn.title = 'Thumbnail sudah benar';
+                setTimeout(() => {
+                    repairThumbBtn.classList.remove('text-green-400');
+                    repairThumbBtn.title = 'Perbaiki thumbnail';
+                }, 2500);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                icon.classList.remove('animate-spin');
+                repairThumbBtn.disabled = false;
             }
         });
 

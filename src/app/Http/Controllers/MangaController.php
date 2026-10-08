@@ -31,12 +31,9 @@ class MangaController extends Controller
       abort(500, "Format data tidak sesuai.");
     }
 
-    // Sort halaman manga (natural order, case insensitive)
-    if (isset($data['Data']['page']) && is_array($data['Data']['page'])) {
-      usort($data['Data']['page'], function ($a, $b) {
-        return strnatcmp($a, $b); // natural sorting: 1,2,10,11,20
-      });
-    }
+    // Pages arrive already in reader order from the backend (PageFiles in
+    // FolderRepositorys/Pages.go) — the same order the thumbnail is picked
+    // from — so don't re-sort here, or page 1 and the thumbnail can drift.
 
     // dd($data);
 
@@ -52,6 +49,17 @@ class MangaController extends Controller
   public function update(Request $request, $id)
   {
     $response = $this->backend()->patch("/id/{$id}", $request->all());
+
+    return response()->json($response->json(), $response->status());
+  }
+
+  /**
+   * Same-origin relay for the "Perbaiki thumbnail" button's fetch() in
+   * manga/show.blade.php — recomputes the stored thumbnail URL from disk.
+   */
+  public function repairThumbnail($id)
+  {
+    $response = $this->backend()->post("/id/{$id}/thumbnail");
 
     return response()->json($response->json(), $response->status());
   }

@@ -45,6 +45,7 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/id/{id}', [MangaController::class, 'show']);
   Route::patch('/id/{id}', [MangaController::class, 'update'])->name('manga.update');
   Route::delete('/id/{id}', [MangaController::class, 'destroy'])->name('manga.destroy');
+  Route::post('/id/{id}/thumbnail', [MangaController::class, 'repairThumbnail'])->name('manga.thumbnail');
   Route::get('/update', [UpdateController::class, 'index'])->name('update.index');
   Route::get('/extract', [ExtractController::class, 'index'])->name('extract');
   Route::get('/extract/worker/ping', [ExtractController::class, 'ping'])->name('extract.ping');

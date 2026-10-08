@@ -14,9 +14,12 @@
     @else
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             @foreach ($folders as $folder)
-                <x-card title="{{ $folder['folder_name'] }}" image="{{ $folder['folder_thumbnail'] }}"
-                    link="/id/{{ $folder['folder_id'] }}" folderid="{{ $folder['folder_id'] }}"
-                    isBookmarked="{{ true }}" isTranslated="{{ false }}" />
+                {{-- Bound with ":" (not attr="{{ }}"): attribute strings are already
+                escaped when passed and the card escapes again, so a name with "&"
+                would become "&amp;" in the image URL (404). --}}
+                <x-card :title="$folder['folder_name']" :image="$folder['folder_thumbnail']"
+                    :link="'/id/' . $folder['folder_id']" :folderid="$folder['folder_id']"
+                    :isBookmarked="true" :isTranslated="false" />
             @endforeach
         </div>
 
