@@ -32,6 +32,53 @@ class TranslateController extends Controller
     ]);
   }
 
+  public function settings()
+  {
+    $response = $this->backend()->get('/translate/settings');
+
+    return view('translate.settings', [
+      'settings' => $response->successful() ? $response->json('Data') : null,
+      'error' => $response->successful() ? null : 'Gagal mengambil setting dari API.',
+    ]);
+  }
+
+  public function saveSettings(Request $request)
+  {
+    $response = $this->backend()->put('/translate/settings', [
+      'translator' => $request->input('translator'),
+      'target_lang' => $request->input('target_lang'),
+      'detector' => $request->input('detector'),
+      'ocr' => $request->input('ocr'),
+      'inpainter' => $request->input('inpainter'),
+      'detection_size' => (int) $request->input('detection_size'),
+      'inpainting_size' => (int) $request->input('inpainting_size'),
+      'inpainting_precision' => $request->input('inpainting_precision'),
+      'gpu_mode' => $request->input('gpu_mode'),
+      'api_base' => (string) $request->input('api_base'),
+      'api_model' => (string) $request->input('api_model'),
+      'api_key' => (string) $request->input('api_key'),
+      'clear_api_key' => $request->boolean('clear_api_key'),
+    ]);
+
+    if ($response->failed()) {
+      // Never flash the API key back into the session.
+      return back()->withInput($request->except('api_key'))
+        ->with('error', $response->json('Message') ?? 'Gagal menyimpan setting.');
+    }
+
+    return redirect()->route('translate.settings')->with('success', 'Setting tersimpan. Berlaku mulai batch berikutnya.');
+  }
+
+  public function resetSettings()
+  {
+    $response = $this->backend()->delete('/translate/settings');
+
+    return redirect()->route('translate.settings')->with(
+      $response->successful() ? 'success' : 'error',
+      $response->successful() ? 'Setting dikembalikan ke default.' : 'Gagal reset setting.'
+    );
+  }
+
   /**
    * Same-origin relay for the "Request Translate" button's browser fetch()
    * on manga/show.blade.php — same reason as BookmarkController::toggle().
@@ -73,6 +120,11 @@ class TranslateController extends Controller
       '/start',
       ['folder_ids' => $request->input('folder_ids', [])]
     );
+  }
+
+  public function stop()
+  {
+    return $this->proxyDaemonJson(config('app.translate_daemon_url'), 'POST', '/stop');
   }
 
   public function progress()

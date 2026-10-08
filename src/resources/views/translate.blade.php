@@ -6,7 +6,10 @@
   <div class="max-w-screen-xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-white tracking-tight">Translate</h1>
-      <a href="{{ route('translate.history') }}" class="text-sm text-indigo-400 hover:underline">Riwayat &rarr;</a>
+      <div class="flex items-center gap-4">
+        <a href="{{ route('translate.settings') }}" class="text-sm text-indigo-400 hover:underline">Setting</a>
+        <a href="{{ route('translate.history') }}" class="text-sm text-indigo-400 hover:underline">Riwayat &rarr;</a>
+      </div>
     </div>
 
     @if ($error)
@@ -29,9 +32,9 @@
       @if (count($items) === 0)
         <p class="text-gray-500 text-center py-16">Tidak ada manga yang menunggu untuk di-translate.</p>
       @else
-        <div class="mb-6 p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
+        <div id="queueBox" class="mb-6 p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-white">Antrian Translate ({{ count($items) }})</h2>
+            <h2 class="text-lg font-semibold text-white">Antrian Translate (<span id="queueCount">{{ count($items) }}</span>)</h2>
             <button id="startBtn" type="button" disabled
               class="text-white bg-indigo-600 hover:bg-indigo-500 focus:ring-4 focus:ring-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center transition">
               Start Batch
@@ -40,10 +43,14 @@
 
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             @foreach ($items as $item)
-              <label
+              @php($status = $item['status'] ?? 'pending')
+              <label data-folder-id="{{ $item['folder_id'] }}"
                 class="group relative block rounded-xl overflow-hidden bg-gray-900 ring-1 ring-white/10 cursor-pointer transition hover:-translate-y-1 hover:ring-indigo-500/60 has-checked:ring-2 has-checked:ring-indigo-500">
-                <input type="checkbox" value="{{ $item['folder_id'] }}" class="sr-only translate-checkbox">
-                <button type="button" class="remove-translate-btn absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-black/50 text-gray-300 hover:text-red-400 hover:bg-black/70 transition"
+                <input type="checkbox" value="{{ $item['folder_id'] }}" class="sr-only translate-checkbox" @disabled($status === 'processing')>
+                <span class="status-badge absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-medium {{ $status === 'pending' ? 'hidden' : '' }} {{ $status === 'failed' ? 'bg-red-950/80 text-red-300' : 'bg-indigo-950/80 text-indigo-300' }}">
+                  {{ $status === 'failed' ? 'Gagal' : 'Diproses' }}
+                </span>
+                <button type="button" class="remove-translate-btn {{ $status === 'processing' ? 'hidden' : '' }} absolute top-2 right-2 z-10 p-1.5 rounded-lg bg-black/50 text-gray-300 hover:text-red-400 hover:bg-black/70 transition"
                   title="Keluarkan dari antrian translate" data-folder-id="{{ $item['folder_id'] }}">
                   <svg class="w-4 h-4" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 6h12M8 6V4.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V6m-7 0 .7 9.1a1.5 1.5 0 0 0 1.5 1.4h5.6a1.5 1.5 0 0 0 1.5-1.4L15 6"
@@ -62,11 +69,10 @@
         </div>
       @endif
 
-      {{-- Always rendered (not gated behind count($items) > 0): items being
-      actively translated drop out of $items (GET /translate/pending only
-      returns status='pending'), so a reload mid-batch can leave the queue
-      looking empty even while a job is still running — this needs to exist
-      in the DOM regardless so the resumed progress can attach to it. --}}
+      {{-- Always rendered (not gated behind count($items) > 0): the queue can
+      be empty while the last job's progress is still worth showing, so this
+      needs to exist in the DOM regardless so the resumed progress can attach
+      to it. --}}
       <div id="progressBox" class="hidden p-5 bg-gray-900 rounded-xl ring-1 ring-white/10">
         <div class="flex items-center justify-between mb-2">
           <span id="progressStatus" class="text-sm text-gray-400">Memulai...</span>
@@ -109,6 +115,33 @@
       return Array.from(document.querySelectorAll('.translate-checkbox:checked')).map(cb => parseInt(cb.value));
     }
 
+    function setCardStatus(folderId, status) {
+      const card = document.querySelector(`label[data-folder-id="${folderId}"]`);
+      if (!card) return;
+      const badge = card.querySelector('.status-badge');
+      const cb = card.querySelector('.translate-checkbox');
+      const failed = status === 'failed';
+      badge.textContent = failed ? 'Gagal' : 'Diproses';
+      badge.className = 'status-badge absolute top-2 left-2 z-10 px-2 py-0.5 rounded-md text-[10px] font-medium '
+        + (failed ? 'bg-red-950/80 text-red-300' : 'bg-indigo-950/80 text-indigo-300');
+      cb.checked = false;
+      cb.disabled = !failed;
+      card.querySelector('.remove-translate-btn').classList.toggle('hidden', !failed);
+    }
+
+    function removeCard(folderId) {
+      document.querySelector(`label[data-folder-id="${folderId}"]`)?.remove();
+      const left = document.querySelectorAll('.translate-checkbox').length;
+      const count = document.getElementById('queueCount');
+      if (count) count.textContent = left;
+      if (left === 0) {
+        document.getElementById('queueBox')?.replaceWith(Object.assign(document.createElement('p'), {
+          className: 'text-gray-500 text-center py-16',
+          textContent: 'Tidak ada manga yang menunggu untuk di-translate.',
+        }));
+      }
+    }
+
     function updateButtons() {
       if (!startBtn) return;
       startBtn.disabled = !online || processing || checkedIds().length === 0;
@@ -148,7 +181,7 @@
           const result = await res.json();
           if (!res.ok) throw new Error(result.Message || 'Gagal mengeluarkan dari antrian');
 
-          btn.closest('label').remove();
+          removeCard(folderId);
           updateButtons();
         } catch (err) {
           alert('Error: ' + err.message);
@@ -189,11 +222,17 @@
         const icon = evt.status === 'success' ? '✅' : '⚠️';
         li.textContent = `${icon} ${evt.name || evt.folder_id} — ${evt.message}`;
         progressLog.appendChild(li);
+
+        // ponytail: /progress backfills the last job on connect, so a manga
+        // that succeeded there and was re-requested since gets hidden after a
+        // reload too — add job_id to events if that ever matters.
+        if (evt.status === 'success') removeCard(evt.folder_id);
+        else setCardStatus(evt.folder_id, 'failed');
         updateButtons();
       });
 
       evtSource.addEventListener('done', () => {
-        progressStatus.textContent = 'Selesai. Reload halaman untuk melihat antrian terbaru.';
+        progressStatus.textContent = 'Selesai.';
         evtSource.close();
         evtSource = null;
         processing = false;
@@ -241,6 +280,8 @@
           updateButtons();
           return;
         }
+
+        ids.forEach(id => setCardStatus(id, 'processing'));
 
         ensureProgressConnection();
       });

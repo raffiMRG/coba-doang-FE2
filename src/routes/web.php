@@ -51,10 +51,15 @@ Route::middleware('auth.backend')->group(function () {
   Route::get('/extract/worker/progress', [ExtractController::class, 'progress'])->name('extract.progress');
 
   Route::get('/translate', [TranslateController::class, 'index'])->name('translate');
+  // Registered before /translate/{id} so "settings" isn't captured as an {id}.
+  Route::get('/translate/settings', [TranslateController::class, 'settings'])->name('translate.settings');
+  Route::put('/translate/settings', [TranslateController::class, 'saveSettings'])->name('translate.settings.save');
+  Route::delete('/translate/settings', [TranslateController::class, 'resetSettings'])->name('translate.settings.reset');
   Route::post('/translate/{id}/request', [TranslateController::class, 'request'])->name('translate.request');
   Route::delete('/translate/{id}', [TranslateController::class, 'cancel'])->name('translate.cancel');
   Route::get('/translate/worker/ping', [TranslateController::class, 'ping'])->name('translate.ping');
   Route::post('/translate/worker/start', [TranslateController::class, 'start'])->name('translate.start');
+  Route::post('/translate/worker/stop', [TranslateController::class, 'stop'])->name('translate.stop');
   Route::get('/translate/worker/progress', [TranslateController::class, 'progress'])->name('translate.progress');
   Route::get('/translate/worker/log', [TranslateController::class, 'log'])->name('translate.log');
   Route::get('/translate/history', [TranslateController::class, 'history'])->name('translate.history');

@@ -6,7 +6,15 @@
   <div class="max-w-screen-xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-white tracking-tight">Job #{{ $job['id'] ?? '?' }}</h1>
-      <a href="{{ route('translate.history') }}" class="text-sm text-indigo-400 hover:underline">&larr; Riwayat</a>
+      <div class="flex items-center gap-4">
+        @if ($job && !$job['finished_at'])
+          <button id="stop-btn" type="button"
+            class="px-4 py-1.5 rounded-lg text-sm font-medium bg-red-600 hover:bg-red-500 text-white disabled:opacity-50">
+            Hentikan job
+          </button>
+        @endif
+        <a href="{{ route('translate.history') }}" class="text-sm text-indigo-400 hover:underline">&larr; Riwayat</a>
+      </div>
     </div>
 
     @if ($job)
@@ -116,6 +124,30 @@
           needsReconnect = true;
         });
       }
+
+      function getXsrfToken() {
+        return decodeURIComponent(document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '');
+      }
+
+      document.getElementById('stop-btn').addEventListener('click', async (e) => {
+        if (!confirm('Hentikan job translate ini? Folder yang sedang diproses akan ditandai gagal.')) return;
+        const btn = e.currentTarget;
+        btn.disabled = true;
+        btn.textContent = 'Menghentikan...';
+        try {
+          const res = await fetch("{{ route('translate.stop') }}", {
+            method: 'POST',
+            headers: { 'X-XSRF-TOKEN': getXsrfToken() },
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || data.error || 'Gagal menghentikan job');
+          // The log SSE's 'done' event reloads the page once the batch exits.
+        } catch (err) {
+          alert('Error: ' + err.message);
+          btn.disabled = false;
+          btn.textContent = 'Hentikan job';
+        }
+      });
 
       ensureLogConnection();
       setInterval(() => {
